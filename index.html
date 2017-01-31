@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contagion</title>
+<style>
+/*! normalize.css v5.0.0 | MIT License | github.com/necolas/normalize.css */button,hr,input{overflow:visible}audio,canvas,progress,video{display:inline-block}progress,sub,sup{vertical-align:baseline}[type=checkbox],[type=radio],legend{box-sizing:border-box;padding:0}html{font-family:sans-serif;line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,main,menu,nav,section{display:block}h1{font-size:2em;margin:.67em 0}figure{margin:1em 40px}hr{box-sizing:content-box;height:0}code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}a:active,a:hover{outline-width:0}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}dfn{font-style:italic}mark{background-color:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}audio:not([controls]){display:none;height:0}img{border-style:none}svg:not(:root){overflow:hidden}button,input,optgroup,select,textarea{font-family:sans-serif;font-size:100%;line-height:1.15;margin:0}button,select{text-transform:none}[type=reset],[type=submit],button,html [type=button]{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:ButtonText dotted 1px}fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}legend{color:inherit;display:table;max-width:100%;white-space:normal}textarea{overflow:auto}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-cancel-button,[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}[hidden],template{display:none}
+
+
+body {
+    background: beige;
+}
+.grid table {
+    border-collapse: collapse;
+    border: solid 3px lime;
+}
+.grid td {
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    border: solid 2px #fff;
+    background: #eee;
+    cursor: default;
+}
+.grid td:hover {
+    opacity: 0.6;
+}
+.grid td.active {
+    box-shadow: inset 0px 0px 0px 2px lime;
+}
+.grid td.c_1 {
+    background: red;
+}
+.grid td.c_2 {
+    background: firebrick;
+}
+.grid td.c_3 {
+    background: maroon;
+}
+.grid td.c_4 {
+    background: #222;
+}
+.grid td.c_5 {
+    background: lightblue;
+}
+.grid td.c_6 {
+    background: blue;
+}
+.grid td.c_7 {
+    background: darkblue;
+}
+
+.grid.p0 td.c_1, .grid.p0 td.c_2, .grid.p0 td.c_3,
+.grid.p1 td.c_5, .grid.p1 td.c_6, .grid.p1 td.c_7 {
+    cursor: pointer;
+}
+
+.grid {
+    margin: 3em;
+}
+
+.info table {
+    margin: 3em;
+    width: 256px;
+}
+.info th, .info td {
+    text-align: left;
+    border: solid 1px #fff;
+    min-width: 50px;
+}
+</style>
+</head>
+<body>
+
+<div class="grid"></div>
+<div class="info">
+<table>
+<!--<tr><th>Mode</th><td colspan="2"><select class="mode"><option value="0">Practice</option><option>Editor</option></select></td></tr>-->
+<tr><th>Status</th><td class="status" colspan="2">?</td></tr>
+<tr><th>Current player</th><td class="player" colspan="2">?</td></tr>
+<tr><th>Points</th><td class="score red">0</td><td class="score blue">0</td></tr>
+<tr><th>Dump</th><td class="dump" colspan="2">?</td></tr>
+</table>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+        var $ = document.querySelector.bind(document),
+            $$ = document.querySelectorAll.bind(document),
+            tiles = new Uint8Array(64),
+            cells,
+            current_player = 0,
+            active_tile = -1,
+            red_tiles = 0,
+            blue_tiles = 0,
+            free_tiles = 64;
+
+        function set_cell(cell, val = 0) {
+            cell = cells[cell];
+            cell.className = "c_" + val;
+        }
+
+        function set_tile(tile, val = 0) {
+            if (tiles[tile] == val)
+                return;
+
+            if (tiles[tile] == 1)
+                red_tiles--;
+            else if (tiles[tile] == 5)
+                blue_tiles--;
+            else if (tiles[tile] == 0)
+                free_tiles--;
+
+            tiles[tile] = val;
+
+            if (val == 1)
+                red_tiles++;
+            else if (val == 5)
+                blue_tiles++;
+            else if (val == 0)
+                free_tiles++;
+        }
+
+        function apply_tiles() {
+            [].forEach.call(cells, function(cell, index){
+                set_cell(index, tiles[index]);
+            });
+
+            active_tile = -1;
+        }
+
+        function look_around(id, mode = 0)
+        {
+            // mode 0 = check move, 1 = highlight, 2 = contaminate
+            var rpos = id % 8,
+                cpos = Math.floor(id / 8),
+
+                nn = id - 16, // north 2
+                nw = id - 9, // north-west
+                n = id - 8, // north
+                ne = id - 7, // north-east
+                ww = id - 2, // west 2
+                w = id - 1, // west
+                e = id + 1, // east
+                ee = id + 2, // east 2
+                sw = id + 7, // south-west
+                s = id + 8, // south
+                se = id + 9, // south-east
+                ss = id + 16; // south 2;
+
+
+            if (mode != 2)
+            {
+                // extremities
+                if (nn >= 0 && tiles[nn] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(nn, current_player ? 7 : 3);
+                }
+                if (ww >= 0 && rpos > 1 && tiles[ww] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(ww, current_player ? 7 : 3);
+                }
+                if (ee < 64 && rpos < 6 && tiles[ee] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(ee, current_player ? 7 : 3);
+                }
+                if (ss < 64 && tiles[ss] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(ss, current_player ? 7 : 3);
+                }
+            }
+
+            else
+                set_tile(id, current_player ? 5 : 1); // contaminate the center
+
+
+            // adjacent
+            if (nw >= 0 && rpos > 0)
+            {
+                if (tiles[nw] == (current_player ? 1 : 5) && mode == 2)
+                    set_tile(nw, current_player ? 5 : 1); // contaminate the tile
+                else if (tiles[nw] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(nw, current_player ? 6 : 2);
+                }
+            }
+            if (n >= 0)
+            {
+                if (tiles[n] == (current_player ? 1 : 5) && mode == 2)
+                    set_tile(n, current_player ? 5 : 1); // contaminate the tile
+                else if (tiles[n] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(n, current_player ? 6 : 2);
+                }
+            }
+            if (ne >= 0 && rpos < 7)
+            {
+                if (tiles[ne] == (current_player ? 1 : 5) && mode == 2)
+                    set_tile(ne, current_player ? 5 : 1); // contaminate the tile
+                else if (tiles[ne] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(ne, current_player ? 6 : 2);
+                }
+            }
+            if (w >= 0 && rpos > 0)
+            {
+                if (tiles[w] == (current_player ? 1 : 5) && mode == 2)
+                    set_tile(w, current_player ? 5 : 1); // contaminate the tile
+                else if (tiles[w] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(w, current_player ? 6 : 2);
+                }
+            }
+            if (e < 64 && rpos < 7)
+            {
+                if (tiles[e] == (current_player ? 1 : 5) && mode == 2)
+                    set_tile(e, current_player ? 5 : 1); // contaminate the tile
+                else if (tiles[e] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(e, current_player ? 6 : 2);
+                }
+            }
+            if (sw < 64 && rpos > 0)
+            {
+                if (tiles[sw] == (current_player ? 1 : 5) && mode == 2)
+                    set_tile(sw, current_player ? 5 : 1); // contaminate the tile
+                else if (tiles[sw] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(sw, current_player ? 6 : 2);
+                }
+            }
+            if (s < 64)
+            {
+                if (tiles[s] == (current_player ? 1 : 5) && mode == 2)
+                    set_tile(s, current_player ? 5 : 1); // contaminate the tile
+                else if (tiles[s] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(s, current_player ? 6 : 2);
+                }
+            }
+            if (se < 64 && rpos < 7)
+            {
+                if (tiles[se] == (current_player ? 1 : 5) && mode == 2)
+                    set_tile(se, current_player ? 5 : 1); // contaminate the tile
+                else if (tiles[se] == 0)
+                {
+                    if (mode == 0)
+                        return true;
+                    set_cell(se, current_player ? 6 : 2);
+                }
+            }
+
+            return false;
+        }
+
+        function contaminate(id) {
+            var can_move = false,
+                red_can_move = false,
+                blue_can_move = false;
+
+            function claim_free(player) {
+                for (i = 0; i < 64 && free_tiles > 0; i++)
+                {
+                    if (tiles[i] == 0)
+                        set_tile(i, player ? 5 : 1);
+                }
+            }
+
+            look_around(id, 2); // contaminate center + adjacent tiles
+
+            if (red_tiles < 1)
+            {
+                claim_free(1);
+                return;
+            }
+            else if (blue_tiles < 1)
+            {
+                claim_free(0);
+                return;
+            }
+
+            for (var i = 0; i < 64 && (!red_can_move || !blue_can_move); i++)
+            {
+                if (tiles[i] == 1 || tiles[i] == 5)
+                {
+                    can_move = look_around(i); // check if this pawn can move
+                    if (can_move == true && tiles[i] == 1)
+                        red_can_move = true;
+                    else if (can_move == true && tiles[i] == 5)
+                        blue_can_move = true;
+                }
+            }
+
+            if (red_can_move == false)
+            {
+                claim_free(1);
+                return;
+            }
+            else if (blue_can_move == false)
+            {
+                claim_free(0);
+                return;
+            }
+        }
+
+        function cell_click(e) {
+            if (!("id" in e.target.dataset))
+                return; // not a cell
+
+            var id = parseInt(e.target.dataset.id),
+                state = parseInt(e.target.className.charAt(2));
+
+            switch (state)
+            {
+                case 1:
+                case 2:
+                case 3:
+                    if (current_player != 0)
+                        return;
+                    break;
+                case 5:
+                case 6:
+                case 7:
+                    if (current_player != 1)
+                        return;
+                    break;
+                default: return;
+            }
+
+            if (active_tile >= 0)
+            {
+                if (id != active_tile && (state == 3 || state == 7))
+                {
+                    // click remote tile
+                    set_tile(active_tile, 0); // remove from origin
+                    contaminate(id); // contaminate around new pawn
+                    apply_tiles(); // apply the changes
+                    next_turn(); // switch player
+                    return;
+                }
+                else if (id != active_tile && (state == 2 || state == 6))
+                {
+                    // click adjacent tile
+                    contaminate(id); // contaminate around new pawn
+                    apply_tiles(); // apply the changes
+                    next_turn(); // switch player
+                    return;
+                }
+                else if (id == active_tile)
+                {
+                    // click same tile
+                    apply_tiles(); // reset board
+                    return;
+                }
+                else
+                {
+                    // click other usable pawn
+                    apply_tiles(); // reset board
+                }
+            }
+
+            active_tile = id;
+            e.target.className += " active";
+            look_around(id, 1);
+        }
+
+        function next_turn() {
+            current_player = current_player ? 0 : 1;
+            $(".grid").classList.add("p" + current_player);
+            $(".grid").classList.remove("p" + (current_player ? 0 : 1));
+            $(".info .player").innerText = "(none)";
+            $(".info .score.blue").innerText = blue_tiles;
+            $(".info .score.red").innerText = red_tiles;
+            $(".info .dump").innerText = tiles.join(" ");
+
+            if (free_tiles < 1 && red_tiles > blue_tiles)
+                $(".info .status").innerText = "red wins";
+            else if (free_tiles < 1 && blue_tiles > red_tiles)
+                $(".info .status").innerText = "blue wins";
+            else if (free_tiles < 1)
+                $(".info .status").innerText = "draw";
+            else
+            {
+                $(".info .status").innerText = "game in progress";
+                $(".info .player").innerText = current_player ? "blue" : "red";
+            }
+        }
+
+// ON INIT
+
+        // build table
+        (function create_table(){
+            var e = 0,
+                tbl  = document.createElement('table');
+            for(var i = 0; i < 8; i++){
+                var tr = tbl.insertRow();
+                for(var j = 0; j < 8; j++){
+                    var td = tr.insertCell();
+                    td.dataset.id = e++;
+                }
+            }
+            tbl.addEventListener("click", cell_click, false);
+            $(".grid").appendChild(tbl);
+        })();
+
+        cells = $$(".grid table td");
+
+        // placeholder layout
+        set_tile(9, 1);
+        set_tile(54, 5);
+
+        apply_tiles(); // initial apply
+        next_turn(); // initial count
+    })();
+</script>
+</body>
+</html>
