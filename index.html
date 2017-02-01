@@ -322,7 +322,7 @@ body {
                 blue_can_move = false;
 
             function claim_free(player) {
-                for (i = 0; i < 64 && free_tiles > 0; i++)
+                for (let i = 0; i < 64 && free_tiles > 0; i++)
                 {
                     if (tiles[i] == 0)
                         set_tile(i, player ? 5 : 1);
@@ -342,7 +342,7 @@ body {
                 return;
             }
 
-            for (var i = 0; i < 64 && (!red_can_move || !blue_can_move); i++)
+            for (let i = 0; i < 64 && (!red_can_move || !blue_can_move); i++)
             {
                 if (tiles[i] == 1 || tiles[i] == 5)
                 {
@@ -478,10 +478,10 @@ body {
         (function create_table(){
             var e = 0,
                 tbl  = document.createElement('table');
-            for(var i = 0; i < 8; i++){
-                var tr = tbl.insertRow();
-                for(var j = 0; j < 8; j++){
-                    var td = tr.insertCell();
+            for(let i = 0; i < 8; i++){
+                let tr = tbl.insertRow();
+                for(let j = 0; j < 8; j++){
+                    let td = tr.insertCell();
                     td.dataset.id = e++;
                 }
             }
