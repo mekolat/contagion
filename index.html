@@ -25,7 +25,7 @@ body {
     background: #eee;
     cursor: default;
 }
-.grid td:hover {
+.grid td:hover:not(.c_4) {
     opacity: 0.6;
 }
 .grid td.active {
@@ -459,8 +459,8 @@ body {
             }
 
             apply_tiles(); // initial apply
-            next_turn(); // initial count
-            current_player = player;
+            current_player = player ? 0 : 1; // next_turn will switch it again
+            next_turn();
             chosen_layout = layout;
         }
 
