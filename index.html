@@ -71,6 +71,15 @@ body {
     border: solid 1px #fff;
     min-width: 50px;
 }
+.info td.score.blue {
+    background: lightblue;
+    text-align: center;
+}
+.info td.score.red {
+    background: red;
+    text-align: center;
+    color: #fff;
+}
 </style>
 </head>
 <body>
@@ -83,6 +92,22 @@ body {
 <tr><th>Current player</th><td class="player" colspan="2">?</td></tr>
 <tr><th>Points</th><td class="score red">0</td><td class="score blue">0</td></tr>
 <tr><th>Dump</th><td class="dump" colspan="2">?</td></tr>
+<tr><td colspan="3">
+    <select class="layout">
+        <option value="-1">any layout</option>
+        <option value="0">1</option>
+        <option value="1">2</option>
+        <option value="2">3</option>
+        <option value="3">4</option>
+        <option value="4">5</option>
+        <option value="5">6</option>
+        <option value="6">7</option>
+        <option value="7">8</option>
+        <option value="8">9</option>
+        <option value="9">10</option>
+        <option value="10">11</option>
+    </select>
+    <button class="new">new game</button></td></tr>
 </table>
 </div>
 
@@ -93,11 +118,23 @@ body {
             $$ = document.querySelectorAll.bind(document),
             tiles = new Uint8Array(64),
             cells,
-            current_player = 0,
+            current_player = (Math.random() >= 0.5 ? 1 : 0),
             active_tile = -1,
             red_tiles = 0,
             blue_tiles = 0,
-            free_tiles = 64;
+            free_tiles = 64,
+            chosen_layout = 0,
+            layouts = ["1000000500000000000000000000000000000000000000000000000050000001",
+                       "1400004544000044000000000000000000000000000000004400004414000045",
+                       "1000000004400000040000000000000000000000000000400000044000000005",
+                       "5040040500400400440000440000000000000000440000440040040010400401",
+                       "0000000000000000004004001004400510044005004004000000000000000000",
+                       "0000000004000040000440050040040000400400100440000400004000000000",
+                       "0000000004000040004554000004400000044000004114000400004000000000",
+                       "1004400500044000000440000000000000000000000440000004400050044001",
+                       "0000000000000000000110000044440000444400000550000000000000000000",
+                       "4004400440044004040000401400004514000045040000404004400440044004",
+                       "1000005001000005100000500100000510000050010000051000005001000005"];
 
         function set_cell(cell, val = 0) {
             cell = cells[cell];
@@ -412,6 +449,29 @@ body {
             }
         }
 
+        function new_game(layout = Math.floor(Math.random()*layouts.length),
+                            player = (Math.random() >= 0.5 ? 1 : 0)) {
+            let i = 0;
+            for (let tile of Uint8Array.from(layouts[layout]))
+            {
+                set_tile(i, tile);
+                i++
+            }
+
+            apply_tiles(); // initial apply
+            next_turn(); // initial count
+            current_player = player;
+            chosen_layout = layout;
+        }
+
+        function new_click() {
+            let layout = parseInt($(".layout").value);
+            if (layout < 0)
+                new_game();
+            else
+                new_game(layout);
+        }
+
 // ON INIT
 
         // build table
@@ -430,13 +490,10 @@ body {
         })();
 
         cells = $$(".grid table td");
+        $(".new").addEventListener("click", new_click, false);
 
-        // placeholder layout
-        set_tile(9, 1);
-        set_tile(54, 5);
 
-        apply_tiles(); // initial apply
-        next_turn(); // initial count
+        new_game();
     })();
 </script>
 </body>
