@@ -80,6 +80,40 @@ body {
     text-align: center;
     color: #fff;
 }
+
+.menu {
+    display: none;
+    position: fixed;
+    border: 1px solid #B2B2B2;
+    width: 150px;
+    background: #F9F9F9;
+    box-shadow: 3px 3px 2px #E9E9E9;
+    border-radius: 4px;
+}
+.menu span {
+    margin: 8px;
+    font-weight: bold;
+    cursor: default;
+}
+.menu .items {
+    list-style: none;
+    margin: 0;
+    margin-top: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 3px;
+    color: #333;
+}
+.menu .items li {
+    padding: 3px;
+    padding-left: 3px;
+    cursor: pointer;
+}
+.menu .items li:hover {
+    color: white;
+    background: #284570;
+    border-radius: 2px;
+}
 </style>
 </head>
 <body>
@@ -87,7 +121,6 @@ body {
 <div class="grid"></div>
 <div class="info">
 <table>
-<!--<tr><th>Mode</th><td colspan="2"><select class="mode"><option value="0">Practice</option><option>Editor</option></select></td></tr>-->
 <tr><th>Status</th><td class="status" colspan="2">?</td></tr>
 <tr><th>Current player</th><td class="player" colspan="2">?</td></tr>
 <tr><th>Points</th><td class="score red">0</td><td class="score blue">0</td></tr>
@@ -112,6 +145,20 @@ body {
 </table>
 </div>
 
+<div class="menu">
+    <span>BOARD EDITOR</span>
+    <ul class="items">
+        <li data-v="0">Empty</li>
+        <li data-v="1">Red</li>
+        <li data-v="5">Blue</li>
+        <li data-v="4">Blocked</li>
+    </ul>
+    <hr/>
+    <ul class="items">
+        <li>Cancel</li>
+    </ul>
+</div>
+
 <script>
     (function(){
         "use strict";
@@ -125,6 +172,7 @@ body {
             blue_tiles = 0,
             free_tiles = 64,
             chosen_layout = 0,
+            right_click_id = -1,
             move_history = [],
             layouts = ["1000000500000000000000000000000000000000000000000000000050000001",
                        "1400004544000044000000000000000000000000000000004400004414000045",
@@ -431,8 +479,9 @@ body {
             look_around(id, 1);
         }
 
-        function next_turn() {
-            current_player = current_player ? 0 : 1;
+        function next_turn(real = true) {
+            if (real)
+                current_player = current_player ? 0 : 1;
             $(".grid").classList.add("p" + current_player);
             $(".grid").classList.remove("p" + (current_player ? 0 : 1));
             $(".info .player").innerText = "(none)";
@@ -463,8 +512,7 @@ body {
             }
 
             apply_tiles(); // initial apply
-            current_player = player ? 0 : 1; // next_turn will switch it again
-            next_turn();
+            next_turn(false);
             chosen_layout = layout;
             move_history = []; // empty the history
         }
@@ -475,6 +523,29 @@ body {
                 new_game();
             else
                 new_game(layout);
+        }
+
+        function right_click(e) {
+            if (!("id" in e.target.dataset))
+                return; // not a cell
+            e.preventDefault();
+
+            right_click_id = parseInt(e.target.dataset.id);
+            $(".menu").style.left = e.clientX + "px";
+            $(".menu").style.top = e.clientY + "px";
+            $(".menu").style.display = "block";
+        }
+
+        function mod_click(e) {
+            if ("v" in e.target.dataset && right_click_id >= 0)
+            {
+                set_tile(right_click_id, parseInt(e.target.dataset.v));
+                apply_tiles();
+                next_turn(false); // just to count stuff
+            }
+
+            right_click_id = -1;
+            $(".menu").style.display = "none";
         }
 
         function undo_click() {
@@ -506,12 +577,14 @@ body {
                 }
             }
             tbl.addEventListener("click", cell_click, false);
+            tbl.addEventListener("contextmenu", right_click, false);
             $(".grid").appendChild(tbl);
         })();
 
         cells = $$(".grid table td");
         $(".new").addEventListener("click", new_click, false);
         $(".undo").addEventListener("click", undo_click, false);
+        $(".menu").addEventListener("click", mod_click, false);
 
 
         new_game();
