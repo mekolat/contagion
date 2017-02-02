@@ -2,6 +2,7 @@ stages:
   - deploy
 
 pages:
+  image: alpine:latest
   stage: deploy
   only:
     - master
