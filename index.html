@@ -534,7 +534,7 @@ body {
         }
 
         function new_game(layout = Math.floor(Math.random()*layouts.length),
-                            player = (Math.random() >= 0.5 ? 1 : 0)) {
+                            player = Math.round(Math.random())) {
             let i = 0;
             for (let tile of Uint8Array.from(layouts[layout]))
             {
