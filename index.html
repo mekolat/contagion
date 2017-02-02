@@ -13,9 +13,14 @@
 body {
     background: beige;
 }
+.grid {
+    margin: 3em;
+    min-height: 276px;
+}
 .grid table {
     border-collapse: collapse;
     border: solid 3px lime;
+    background: #eee;
 }
 .grid td {
     width: 32px;
@@ -23,35 +28,37 @@ body {
     margin: 0;
     padding: 0;
     border: solid 2px #fff;
-    background: #eee;
     cursor: default;
 }
-.grid td:hover:not(.c_4) {
-    opacity: 0.6;
+.grid td:hover:not(.c_4):not(.active) {
+    opacity: 0.4;
 }
 .grid td.active {
     box-shadow: inset 0px 0px 0px 2px lime;
 }
 .grid td.c_1 {
     background: red;
+    border-radius: 15px;
 }
 .grid td.c_2 {
-    background: firebrick;
+    background: #ff71bb;
 }
 .grid td.c_3 {
-    background: maroon;
+    background: #ffbaba;
 }
 .grid td.c_4 {
     background: #222;
+    box-shadow: inset 0px 0px 0px 1px #eee;
 }
 .grid td.c_5 {
-    background: lightblue;
+    background: blue;
+    border-radius: 15px;
 }
 .grid td.c_6 {
-    background: blue;
+    background: #6060ff;
 }
 .grid td.c_7 {
-    background: darkblue;
+    background: #babaff;
 }
 
 .grid.p0 td.c_1, .grid.p0 td.c_2, .grid.p0 td.c_3,
@@ -59,10 +66,6 @@ body {
     cursor: pointer;
 }
 
-.grid {
-    margin: 3em;
-    min-height: 276px;
-}
 
 .info {
     display: none;
