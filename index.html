@@ -81,6 +81,9 @@ body {
     text-align: center;
     color: #fff;
 }
+.info td.dump {
+    word-break: break-all;
+}
 
 .menu {
     display: none;
@@ -125,7 +128,7 @@ body {
 <tr><th>Status</th><td class="status" colspan="2">?</td></tr>
 <tr><th>Current player</th><td class="player" colspan="2">?</td></tr>
 <tr><th>Points</th><td class="score red">0</td><td class="score blue">0</td></tr>
-<tr><th>Dump</th><td class="dump" colspan="2">?</td></tr>
+<tr><th>Raw Data</th><td class="dump" colspan="2">?</td></tr>
 <tr><td colspan="3">
     <select class="layout">
         <option value="-1">any layout</option>
@@ -488,7 +491,7 @@ body {
             $(".info .player").innerText = "(none)";
             $(".info .score.blue").innerText = blue_tiles;
             $(".info .score.red").innerText = red_tiles;
-            $(".info .dump").innerText = tiles.join(" ");
+            $(".info .dump").innerText = tiles.join("");
 
             if (free_tiles < 1 && red_tiles > blue_tiles)
                 $(".info .status").innerText = "red wins";
