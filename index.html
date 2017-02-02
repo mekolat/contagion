@@ -61,9 +61,17 @@ body {
     background: #babaff;
 }
 
-.grid.p0 td.c_1, .grid.p0 td.c_2, .grid.p0 td.c_3,
-.grid.p1 td.c_5, .grid.p1 td.c_6, .grid.p1 td.c_7 {
+.grid.p0 td.c_1, .grid.p1 td.c_5 {
     cursor: pointer;
+}
+.grid.p1 td.c_1, .grid.p0 td.c_5 {
+    cursor: not-allowed;
+}
+.grid.p0 td.c_2, .grid.p1 td.c_6 {
+    cursor: cell;
+}
+.grid.p0 td.c_3, .grid.p1 td.c_7 {
+    cursor: crosshair;
 }
 
 
