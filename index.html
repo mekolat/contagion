@@ -64,6 +64,9 @@ body {
     min-height: 276px;
 }
 
+.info {
+    display: none;
+}
 .info table {
     margin: 3em;
     width: 256px;
@@ -159,7 +162,6 @@ body {
 <tr><td colspan="3"><button class="undo">undo last move</button></td></tr>
 </table>
 </div>
-
 <div class="menu">
     <span>BOARD EDITOR</span>
     <ul class="items">
@@ -173,6 +175,11 @@ body {
         <li>Cancel</li>
     </ul>
 </div>
+<noscript>
+    <h1>Javascript is required for this page.</h1>
+    <h2>There is no tracking, and no external resources.</h2>
+    <h3>Source code: <a href="https://gitlab.com/gumiko/contagion/tree/master">https://gitlab.com/gumiko/contagion</a></h3>
+</noscript>
 
 <script>
     (function(){
@@ -619,6 +626,7 @@ body {
         $(".new").addEventListener("click", new_click, false);
         $(".undo").addEventListener("click", undo_click, false);
         $(".menu").addEventListener("click", mod_click, false);
+        $(".info").style.display = "block";
 
 
         new_game();
