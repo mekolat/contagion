@@ -108,6 +108,7 @@ body {
         <option value="10">11</option>
     </select>
     <button class="new">new game</button></td></tr>
+<tr><td colspan="3"><button class="undo">undo last move</button></td></tr>
 </table>
 </div>
 
@@ -124,6 +125,7 @@ body {
             blue_tiles = 0,
             free_tiles = 64,
             chosen_layout = 0,
+            move_history = [],
             layouts = ["1000000500000000000000000000000000000000000000000000000050000001",
                        "1400004544000044000000000000000000000000000000004400004414000045",
                        "1000000004400000040000000000000000000000000000400000044000000005",
@@ -395,6 +397,7 @@ body {
                 if (id != active_tile && (state == 3 || state == 7))
                 {
                     // click remote tile
+                    move_history.unshift(Array.from(tiles)); // log previous state so we can undo
                     set_tile(active_tile, 0); // remove from origin
                     contaminate(id); // contaminate around new pawn
                     apply_tiles(); // apply the changes
@@ -404,6 +407,7 @@ body {
                 else if (id != active_tile && (state == 2 || state == 6))
                 {
                     // click adjacent tile
+                    move_history.unshift(Array.from(tiles)); // log previous state so we can undo
                     contaminate(id); // contaminate around new pawn
                     apply_tiles(); // apply the changes
                     next_turn(); // switch player
@@ -455,13 +459,14 @@ body {
             for (let tile of Uint8Array.from(layouts[layout]))
             {
                 set_tile(i, tile);
-                i++
+                i++;
             }
 
             apply_tiles(); // initial apply
             current_player = player ? 0 : 1; // next_turn will switch it again
             next_turn();
             chosen_layout = layout;
+            move_history = []; // empty the history
         }
 
         function new_click() {
@@ -470,6 +475,21 @@ body {
                 new_game();
             else
                 new_game(layout);
+        }
+
+        function undo_click() {
+            if (move_history.length < 1)
+                return;
+
+            let i = 0;
+            for (let tile of move_history.shift())
+            {
+                set_tile(i, tile);
+                i++;
+            }
+
+            apply_tiles();
+            next_turn();
         }
 
 // ON INIT
@@ -491,6 +511,7 @@ body {
 
         cells = $$(".grid table td");
         $(".new").addEventListener("click", new_click, false);
+        $(".undo").addEventListener("click", undo_click, false);
 
 
         new_game();
