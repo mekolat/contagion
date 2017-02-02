@@ -424,6 +424,12 @@ body {
             if (!("id" in e.target.dataset))
                 return; // not a cell
 
+            if (right_click_id >= 0)
+            {
+                right_click_id = -1;
+                $(".menu").style.display = "none";
+            }
+
             var id = parseInt(e.target.dataset.id),
                 state = parseInt(e.target.className.charAt(2));
 
