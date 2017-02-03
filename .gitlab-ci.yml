@@ -11,7 +11,7 @@ pages:
     - unzip -o compiler-latest.zip
     - mv closure*.jar compiler.jar
     - chmod u+x compiler.jar
-    - java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --js_output_file=app.min.js app.js
+    - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=app.min.js app.js
     - mkdir -p public
     - mv index.html public/
     - mv app.min.js public/
