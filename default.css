@@ -1,0 +1,124 @@
+body {
+    background: beige;
+}
+.grid {
+    margin: 3em;
+    min-height: 276px;
+}
+.grid table {
+    border-collapse: collapse;
+    border: solid 3px lime;
+    background: #eee;
+}
+.grid td {
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    border: solid 2px #fff;
+    cursor: default;
+}
+.grid td.active {
+    box-shadow: inset 0px 0px 0px 2px lime;
+}
+.grid td.c_1 {
+    background: red;
+}
+.grid td.c_2 {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8X7j7PwAHzgMs83OEjQAAAABJRU5ErkJggg==) no-repeat center;
+    background-size: 24px 24px;
+}
+.grid td.c_3 {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v2vXfwAIpwN0PEcUIgAAAABJRU5ErkJggg==) no-repeat center;
+    background-size: 20px 20px;
+}
+.grid td.c_4 {
+    background: #222;
+    box-shadow: inset 0px 0px 0px 1px #eee;
+}
+.grid td.c_5 {
+    background: #0080ff;
+}
+.grid td.c_6 {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMSPj/HwAFpwLAMvJk8gAAAABJRU5ErkJggg==) no-repeat center;
+    background-size: 24px 24px;
+}
+.grid td.c_7 {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mPctev/fwAIHQN0gZQUiwAAAABJRU5ErkJggg==) no-repeat center;
+    background-size: 20px 20px;
+}
+
+.grid.p0 td.c_1, .grid.p1 td.c_5 {
+    cursor: pointer;
+}
+.grid.p1 td.c_1, .grid.p0 td.c_5 {
+    cursor: not-allowed;
+}
+.grid.p0 td.c_2, .grid.p1 td.c_6 {
+    cursor: cell;
+}
+.grid.p0 td.c_3, .grid.p1 td.c_7 {
+    cursor: crosshair;
+}
+
+.grid.p0 td.c_1:hover, .grid.p0 td.c_2:hover, .grid.p0 td.c_3:hover,
+.grid.p1 td.c_5:hover, .grid.p1 td.c_6:hover, .grid.p1 td.c_7:hover {
+    opacity: 0.4;
+}
+
+
+.info {
+    display: none;
+}
+.info table {
+    margin: 3em;
+    width: 256px;
+}
+.info th, .info td {
+    text-align: left;
+    border: solid 1px #fff;
+    min-width: 50px;
+}
+.info td.score.blue {
+    background: lightblue;
+    text-align: center;
+}
+.info td.score.red {
+    background: red;
+    text-align: center;
+    color: #fff;
+}
+
+.menu {
+    display: none;
+    position: fixed;
+    border: 1px solid #B2B2B2;
+    width: 150px;
+    background: #F9F9F9;
+    box-shadow: 3px 3px 2px #E9E9E9;
+    border-radius: 4px;
+}
+.menu span {
+    margin: 8px;
+    font-weight: bold;
+    cursor: default;
+}
+.menu .items {
+    list-style: none;
+    margin: 0;
+    margin-top: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 3px;
+    color: #333;
+}
+.menu .items li {
+    padding: 3px;
+    padding-left: 3px;
+    cursor: pointer;
+}
+.menu .items li:hover {
+    color: white;
+    background: #284570;
+    border-radius: 2px;
+}

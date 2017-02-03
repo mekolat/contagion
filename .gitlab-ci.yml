@@ -2,13 +2,21 @@ stages:
   - deploy
 
 pages:
-  image: alpine:latest
+  image: openjdk:jre
   stage: deploy
   only:
     - master
   script:
+    - wget http://dl.google.com/closure-compiler/compiler-latest.zip
+    - unzip -o compiler-latest.zip
+    - mv closure*.jar compiler.jar
+    - chmod u+x compiler.jar
+    - java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --js_output_file=app.min.js app.js
     - mkdir -p public
     - mv index.html public/
+    - mv app.min.js public/
+    - mv default.css public/
+    - mv normalize.css public/
   artifacts:
     paths:
       - public
