@@ -100,10 +100,6 @@ body {
     text-align: center;
     color: #fff;
 }
-.info td.dump {
-    word-break: break-all;
-    font-size: 0.6em;
-}
 
 .menu {
     display: none;
@@ -148,7 +144,6 @@ body {
 <tr><th>Status</th><td class="status" colspan="2">?</td></tr>
 <tr><th>Current player</th><td class="player" colspan="2">?</td></tr>
 <tr><th>Points</th><td class="score red">0</td><td class="score blue">0</td></tr>
-<tr><th>Raw Data</th><td class="dump" colspan="2">?</td></tr>
 <tr><td colspan="3">
     <select class="layout">
         <option value="-1">any layout</option>
@@ -551,7 +546,8 @@ body {
             $(".info .player").innerText = "(none)";
             $(".info .score.blue").innerText = blue_tiles;
             $(".info .score.red").innerText = red_tiles;
-            $(".info .dump").innerText = tiles.join("");
+
+            history.replaceState({}, document.title, "#" + tiles.join(""));
 
             if (free_tiles < 1 && red_tiles > blue_tiles)
                 $(".info .status").innerText = "red wins";
@@ -569,7 +565,9 @@ body {
         function new_game(layout = Math.floor(Math.random()*layouts.length),
                             player = Math.round(Math.random())) {
             let i = 0;
-            for (let tile of Uint8Array.from(layouts[layout]))
+            if (typeof layout == "number")
+                layout = layouts[layout];
+            for (let tile of Uint8Array.from(layout))
             {
                 set_tile(i, tile);
                 i++;
@@ -631,6 +629,11 @@ body {
             next_turn();
         }
 
+        function hash_change() {
+            if (/^#\d{64}$/g.exec(document.location.hash))
+                new_game(document.location.hash.slice(1))
+        }
+
 // ON INIT
 
         // build table
@@ -653,10 +656,13 @@ body {
         $(".new").addEventListener("click", new_click, false);
         $(".undo").addEventListener("click", undo_click, false);
         $(".menu").addEventListener("click", mod_click, false);
+        window.addEventListener("hashchange", hash_change, false);
         $(".info").style.display = "block";
 
-
-        new_game();
+        if (/^#\d{64}$/g.exec(document.location.hash))
+            new_game(document.location.hash.slice(1))
+        else
+            new_game();
     })();
 </script>
 </body>
