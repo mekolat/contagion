@@ -352,6 +352,7 @@
         $(".info .score.red").innerText = red_tiles;
 
         history.replaceState({}, document.title, "#" + tiles.join(""));
+        $(".perma").href = document.location.href;
 
         if (free_tiles < 1 && red_tiles > blue_tiles)
             $(".info .status").innerText = "red wins";

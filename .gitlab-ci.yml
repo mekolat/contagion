@@ -14,6 +14,9 @@ pages:
     - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=app.min.js app.js
     - mkdir -p public
     - mv index.html public/
+    - mv license.html public/
+    - mv LICENSE public/
+    - mv app.js public/
     - mv app.min.js public/
     - mv default.css public/
     - mv normalize.css public/
