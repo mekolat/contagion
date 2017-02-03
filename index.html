@@ -30,9 +30,6 @@ body {
     border: solid 2px #fff;
     cursor: default;
 }
-.grid td:hover:not(.c_4):not(.active) {
-    opacity: 0.4;
-}
 .grid td.active {
     box-shadow: inset 0px 0px 0px 2px lime;
 }
@@ -74,6 +71,11 @@ body {
 }
 .grid.p0 td.c_3, .grid.p1 td.c_7 {
     cursor: crosshair;
+}
+
+.grid.p0 td.c_1:hover, .grid.p0 td.c_2:hover, .grid.p0 td.c_3:hover,
+.grid.p1 td.c_5:hover, .grid.p1 td.c_6:hover, .grid.p1 td.c_7:hover {
+    opacity: 0.4;
 }
 
 
@@ -474,10 +476,16 @@ body {
             {
                 right_click_id = -1;
                 $(".menu").style.display = "none";
+                return;
             }
 
             var id = parseInt(e.target.dataset.id),
                 state = parseInt(e.target.className.charAt(2));
+
+            if (active_tile >= 0 && active_tile != id && state != (current_player ? 6 : 2) && state != (current_player ? 7 : 3))
+            {
+                apply_tiles();
+            }
 
             switch (state)
             {
@@ -592,6 +600,8 @@ body {
             $(".menu").style.left = e.clientX + "px";
             $(".menu").style.top = e.clientY + "px";
             $(".menu").style.display = "block";
+            if (active_tile >= 0)
+                apply_tiles();
         }
 
         function mod_click(e) {
