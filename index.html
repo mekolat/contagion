@@ -630,7 +630,7 @@ body {
         }
 
         function hash_change() {
-            if (/^#\d{64}$/g.exec(document.location.hash))
+            if (/^#[0145]{64}$/g.exec(document.location.hash))
                 new_game(document.location.hash.slice(1))
         }
 
@@ -659,7 +659,7 @@ body {
         window.addEventListener("hashchange", hash_change, false);
         $(".info").style.display = "block";
 
-        if (/^#\d{64}$/g.exec(document.location.hash))
+        if (/^#[0145]{64}$/g.exec(document.location.hash))
             new_game(document.location.hash.slice(1))
         else
             new_game();
