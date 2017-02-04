@@ -308,7 +308,7 @@
             if (id != active_tile && (state == 3 || state == 7))
             {
                 // click remote tile
-                move_history.undo.unshift(Array.from(tiles)); // log previous state so we can undo
+                move_history.undo.push(Array.from(tiles)); // log previous state so we can undo
                 $(".undo").disabled = false; // we can undo
                 move_history.redo = []; // empty redo
                 $(".redo").disabled = true; // we can't redo
@@ -322,7 +322,7 @@
             else if (id != active_tile && (state == 2 || state == 6))
             {
                 // click adjacent tile
-                move_history.undo.unshift(Array.from(tiles)); // log previous state so we can undo
+                move_history.undo.push(Array.from(tiles)); // log previous state so we can undo
                 $(".undo").disabled = false; // we can undo
                 move_history.redo = []; // empty redo
                 $(".redo").disabled = true; // we can't redo
@@ -443,12 +443,12 @@
         if (move_history.undo.length < 1)
             return;
 
-        move_history.redo.unshift(Array.from(tiles)); // log so we can redo
+        move_history.redo.push(Array.from(tiles)); // log so we can redo
         $(".redo").disabled = false; // we can redo
 
 
         let i = 0;
-        for (let tile of move_history.undo.shift())
+        for (let tile of move_history.undo.pop())
         {
             set_tile(i, tile);
             i++;
@@ -465,12 +465,12 @@
         if (move_history.redo.length < 1)
             return;
 
-        move_history.undo.unshift(Array.from(tiles)); // log so we can undo
+        move_history.undo.push(Array.from(tiles)); // log so we can undo
         $(".undo").disabled = false; // we can undo
 
 
         let i = 0;
-        for (let tile of move_history.redo.shift())
+        for (let tile of move_history.redo.pop())
         {
             set_tile(i, tile);
             i++;
