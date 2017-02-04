@@ -268,7 +268,7 @@
     }
 
     function cell_click(e) {
-        if (!("id" in e.target.dataset))
+        if (!("id" in e.target.dataset) || free_tiles < 1)
             return; // not a cell
 
         if (right_click_id >= 0)
@@ -354,12 +354,17 @@
         history.replaceState({}, document.title, "#" + tiles.join(""));
         $(".perma").href = document.location.href;
 
-        if (free_tiles < 1 && red_tiles > blue_tiles)
-            $(".info .status").innerText = "red wins";
-        else if (free_tiles < 1 && blue_tiles > red_tiles)
-            $(".info .status").innerText = "blue wins";
-        else if (free_tiles < 1)
-            $(".info .status").innerText = "draw";
+        if (free_tiles < 1)
+        {
+            $(".grid").className = "grid";
+
+            if (red_tiles > blue_tiles)
+                $(".info .status").innerText = "red wins";
+            else if (blue_tiles > red_tiles)
+                $(".info .status").innerText = "blue wins";
+            else
+                $(".info .status").innerText = "draw";
+        }
         else
         {
             $(".info .status").innerText = "game in progress";
