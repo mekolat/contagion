@@ -11,7 +11,7 @@
         free_tiles = 64,
         chosen_layout = 0,
         right_click_id = -1,
-        move_history = [],
+        move_history = {undo: [], redo: []},
         layouts = [
                     "1000000500000000000000000000000000000000000000000000000050000001", // gumi (01)
                     "1400004544000044000000000000000000000000000000004400004414000045", // gumi (02)
@@ -308,7 +308,11 @@
             if (id != active_tile && (state == 3 || state == 7))
             {
                 // click remote tile
-                move_history.unshift(Array.from(tiles)); // log previous state so we can undo
+                move_history.undo.unshift(Array.from(tiles)); // log previous state so we can undo
+                $(".undo").disabled = false; // we can undo
+                move_history.redo = []; // empty redo
+                $(".redo").disabled = true; // we can't redo
+
                 set_tile(active_tile, 0); // remove from origin
                 contaminate(id); // contaminate around new pawn
                 apply_tiles(); // apply the changes
@@ -318,7 +322,11 @@
             else if (id != active_tile && (state == 2 || state == 6))
             {
                 // click adjacent tile
-                move_history.unshift(Array.from(tiles)); // log previous state so we can undo
+                move_history.undo.unshift(Array.from(tiles)); // log previous state so we can undo
+                $(".undo").disabled = false; // we can undo
+                move_history.redo = []; // empty redo
+                $(".redo").disabled = true; // we can't redo
+
                 contaminate(id); // contaminate around new pawn
                 apply_tiles(); // apply the changes
                 next_turn(); // switch player
@@ -357,6 +365,8 @@
         if (free_tiles < 1)
         {
             $(".grid").className = "grid";
+            $(".switch").disabled = true;
+            $(".choose").classList.add("endgame");
 
             if (red_tiles > blue_tiles)
                 $(".info .status").innerText = "red wins";
@@ -369,6 +379,8 @@
         {
             $(".info .status").innerText = "game in progress";
             $(".info .player").innerText = current_player ? "blue" : "red";
+            $(".switch").disabled = false;
+            $(".choose").classList.remove("endgame");
         }
     }
 
@@ -387,7 +399,10 @@
         apply_tiles(); // initial apply
         next_turn();
         chosen_layout = layout;
-        move_history = []; // empty the history
+        move_history.undo = []; // empty the history
+        move_history.redo = []; // empty the history
+        $(".undo").disabled = true; // we can't undo
+        $(".redo").disabled = true; // we can't redo
     }
 
     function new_click() {
@@ -425,15 +440,44 @@
     }
 
     function undo_click() {
-        if (move_history.length < 1)
+        if (move_history.undo.length < 1)
             return;
 
+        move_history.redo.unshift(Array.from(tiles)); // log so we can redo
+        $(".redo").disabled = false; // we can redo
+
+
         let i = 0;
-        for (let tile of move_history.shift())
+        for (let tile of move_history.undo.shift())
         {
             set_tile(i, tile);
             i++;
         }
+
+        if (move_history.undo.length < 1)
+            $(".undo").disabled = true; // we can't undo
+
+        apply_tiles();
+        next_turn();
+    }
+
+    function redo_click() {
+        if (move_history.redo.length < 1)
+            return;
+
+        move_history.undo.unshift(Array.from(tiles)); // log so we can undo
+        $(".undo").disabled = false; // we can undo
+
+
+        let i = 0;
+        for (let tile of move_history.redo.shift())
+        {
+            set_tile(i, tile);
+            i++;
+        }
+
+        if (move_history.redo.length < 1)
+            $(".redo").disabled = true; // we can't redo
 
         apply_tiles();
         next_turn();
@@ -442,6 +486,7 @@
     function switch_click() {
         if (free_tiles < 1)
             return;
+        apply_tiles(); // to remove highlight
         next_turn();
     }
 
@@ -472,6 +517,7 @@
     $(".switch").addEventListener("click", switch_click, false);
     $(".new").addEventListener("click", new_click, false);
     $(".undo").addEventListener("click", undo_click, false);
+    $(".redo").addEventListener("click", redo_click, false);
     $(".menu").addEventListener("click", mod_click, false);
     window.addEventListener("hashchange", hash_change, false);
     $(".info").style.display = "block";

@@ -88,6 +88,17 @@ body {
     text-align: center;
     color: #fff;
 }
+.info td.endgame {
+    animation: blink 1s ease-in-out infinite alternate;
+    background: yellow;
+}
+
+@keyframes blink {
+   50% {
+        border-color: purple;
+        background: orangered;
+    }
+}
 
 .menu {
     display: none;
