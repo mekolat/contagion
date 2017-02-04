@@ -439,6 +439,12 @@
         next_turn();
     }
 
+    function switch_click() {
+        if (free_tiles < 1)
+            return;
+        next_turn();
+    }
+
     function hash_change() {
         if (/^#[0145]{64}$/g.exec(document.location.hash))
             new_game(document.location.hash.slice(1))
@@ -463,6 +469,7 @@
     })();
 
     cells = $$(".grid table td");
+    $(".switch").addEventListener("click", switch_click, false);
     $(".new").addEventListener("click", new_click, false);
     $(".undo").addEventListener("click", undo_click, false);
     $(".menu").addEventListener("click", mod_click, false);
