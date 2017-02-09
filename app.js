@@ -492,7 +492,7 @@
 
     function hash_change() {
         if (/^#[0145]{64}$/g.exec(document.location.hash))
-            new_game(document.location.hash.slice(1))
+            new_game(document.location.hash.slice(1));
     }
 
 // ON INIT
@@ -523,7 +523,14 @@
     $(".info").style.display = "block";
 
     if (/^#[0145]{64}$/g.exec(document.location.hash))
-        new_game(document.location.hash.slice(1))
+        new_game(document.location.hash.slice(1));
     else
         new_game();
+
+    // register the service worker
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+            .register("./worker.min.js")
+            .then(function(){ console.log("Service Worker Registered"); });
+    }
 })();

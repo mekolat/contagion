@@ -12,14 +12,19 @@ pages:
     - mv closure*.jar compiler.jar
     - chmod u+x compiler.jar
     - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=app.min.js app.js
+    - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=worker.min.js service-worker.js
     - mkdir -p public
     - mv index.html public/
     - mv license.html public/
     - mv LICENSE public/
-    - mv app.js public/
     - mv app.min.js public/
+    - mv worker.min.js public/
     - mv default.css public/
     - mv normalize.css public/
+    - mv manifest.json public/
+    - mv icons/128.ico public/favicon.ico
+    - mv icons public/
+    - find public -name \*.\* -print
   artifacts:
     paths:
       - public

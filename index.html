@@ -5,8 +5,25 @@
 <meta http-equiv="x-ua-compatible" content="ie=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content; manifest-src 'self';">
+<!-- IMPORTANT! make default-src be 'none' whenever worker-src works -->
+
+<!-- google -->
+<meta name="theme-color" content="#F5F5DC">
+
+<!-- apple -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Contagion">
+<link rel="apple-touch-icon" href="icons/144.png">
+
+<!-- microsoft -->
+<meta name="msapplication-TileImage" content="icons/144.png">
+<meta name="msapplication-TileColor" content="#F5F5DC">
+
 <title>Contagion</title>
+<link rel="shortcut icon" href="icons/32.png">
+<link rel="manifest" href="manifest.json">
 <link href="normalize.css" rel="stylesheet">
 <link href="default.css" rel="stylesheet">
 </head>
@@ -72,6 +89,6 @@
     </ul>
 </div>
 
-<script src="app.min.js"></script>
+<script src="app.min.js" async></script>
 </body>
 </html>
