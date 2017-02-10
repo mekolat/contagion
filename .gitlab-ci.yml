@@ -7,6 +7,7 @@ pages:
   only:
     - master
   script:
+    - sed -i "s/{{git-rev}}/${CI_BUILD_REF:0:7}/" service-worker.js
     - wget http://dl.google.com/closure-compiler/compiler-latest.zip
     - unzip -o compiler-latest.zip
     - mv closure*.jar compiler.jar
