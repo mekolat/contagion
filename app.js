@@ -9,9 +9,9 @@
         red_tiles = 0,
         blue_tiles = 0,
         free_tiles = 64,
-        chosen_layout = 0,
         right_click_id = -1,
         move_history = {undo: [], redo: []},
+        savestate = [],
         layouts = [
                     "1000000500000000000000000000000000000000000000000000000050000001", // gumi (01)
                     "1400004544000044000000000000000000000000000000004400004414000045", // gumi (02)
@@ -43,23 +43,23 @@
     }
 
     function set_tile(tile, val = 0) {
-        if (tiles[tile] == val)
+        if (tiles[tile] === val)
             return;
 
-        if (tiles[tile] == 1)
+        if (tiles[tile] === 1)
             red_tiles--;
-        else if (tiles[tile] == 5)
+        else if (tiles[tile] === 5)
             blue_tiles--;
-        else if (tiles[tile] == 0)
+        else if (tiles[tile] === 0)
             free_tiles--;
 
         tiles[tile] = val;
 
-        if (val == 1)
+        if (val === 1)
             red_tiles++;
-        else if (val == 5)
+        else if (val === 5)
             blue_tiles++;
-        else if (val == 0)
+        else if (val === 0)
             free_tiles++;
     }
 
@@ -91,30 +91,30 @@
             ss = id + 16; // south 2;
 
 
-        if (mode != 2)
+        if (mode !== 2)
         {
             // extremities
-            if (nn >= 0 && tiles[nn] == 0)
+            if (nn >= 0 && tiles[nn] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(nn, current_player ? 7 : 3);
             }
-            if (ww >= 0 && rpos > 1 && tiles[ww] == 0)
+            if (ww >= 0 && rpos > 1 && tiles[ww] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(ww, current_player ? 7 : 3);
             }
-            if (ee < 64 && rpos < 6 && tiles[ee] == 0)
+            if (ee < 64 && rpos < 6 && tiles[ee] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(ee, current_player ? 7 : 3);
             }
-            if (ss < 64 && tiles[ss] == 0)
+            if (ss < 64 && tiles[ss] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(ss, current_player ? 7 : 3);
             }
@@ -127,88 +127,88 @@
         // adjacent
         if (nw >= 0 && rpos > 0)
         {
-            if (tiles[nw] == (current_player ? 1 : 5) && mode == 2)
+            if (tiles[nw] === (current_player ? 1 : 5) && mode === 2)
                 set_tile(nw, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[nw] == 0)
+            else if (tiles[nw] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(nw, current_player ? 6 : 2);
             }
         }
         if (n >= 0)
         {
-            if (tiles[n] == (current_player ? 1 : 5) && mode == 2)
+            if (tiles[n] === (current_player ? 1 : 5) && mode === 2)
                 set_tile(n, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[n] == 0)
+            else if (tiles[n] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(n, current_player ? 6 : 2);
             }
         }
         if (ne >= 0 && rpos < 7)
         {
-            if (tiles[ne] == (current_player ? 1 : 5) && mode == 2)
+            if (tiles[ne] === (current_player ? 1 : 5) && mode === 2)
                 set_tile(ne, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[ne] == 0)
+            else if (tiles[ne] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(ne, current_player ? 6 : 2);
             }
         }
         if (w >= 0 && rpos > 0)
         {
-            if (tiles[w] == (current_player ? 1 : 5) && mode == 2)
+            if (tiles[w] === (current_player ? 1 : 5) && mode === 2)
                 set_tile(w, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[w] == 0)
+            else if (tiles[w] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(w, current_player ? 6 : 2);
             }
         }
         if (e < 64 && rpos < 7)
         {
-            if (tiles[e] == (current_player ? 1 : 5) && mode == 2)
+            if (tiles[e] === (current_player ? 1 : 5) && mode === 2)
                 set_tile(e, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[e] == 0)
+            else if (tiles[e] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(e, current_player ? 6 : 2);
             }
         }
         if (sw < 64 && rpos > 0)
         {
-            if (tiles[sw] == (current_player ? 1 : 5) && mode == 2)
+            if (tiles[sw] === (current_player ? 1 : 5) && mode === 2)
                 set_tile(sw, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[sw] == 0)
+            else if (tiles[sw] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(sw, current_player ? 6 : 2);
             }
         }
         if (s < 64)
         {
-            if (tiles[s] == (current_player ? 1 : 5) && mode == 2)
+            if (tiles[s] === (current_player ? 1 : 5) && mode === 2)
                 set_tile(s, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[s] == 0)
+            else if (tiles[s] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(s, current_player ? 6 : 2);
             }
         }
         if (se < 64 && rpos < 7)
         {
-            if (tiles[se] == (current_player ? 1 : 5) && mode == 2)
+            if (tiles[se] === (current_player ? 1 : 5) && mode === 2)
                 set_tile(se, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[se] == 0)
+            else if (tiles[se] === 0)
             {
-                if (mode == 0)
+                if (mode === 0)
                     return true;
                 set_cell(se, current_player ? 6 : 2);
             }
@@ -225,7 +225,7 @@
         function claim_free(player) {
             for (let i = 0; i < 64 && free_tiles > 0; i++)
             {
-                if (tiles[i] == 0)
+                if (tiles[i] === 0)
                     set_tile(i, player ? 5 : 1);
             }
         }
@@ -245,22 +245,22 @@
 
         for (let i = 0; i < 64 && (!red_can_move || !blue_can_move); i++)
         {
-            if (tiles[i] == 1 || tiles[i] == 5)
+            if (tiles[i] === 1 || tiles[i] === 5)
             {
                 can_move = look_around(i); // check if this pawn can move
-                if (can_move == true && tiles[i] == 1)
+                if (can_move === true && tiles[i] === 1)
                     red_can_move = true;
-                else if (can_move == true && tiles[i] == 5)
+                else if (can_move === true && tiles[i] === 5)
                     blue_can_move = true;
             }
         }
 
-        if (red_can_move == false)
+        if (red_can_move === false)
         {
             claim_free(1);
             return;
         }
-        else if (blue_can_move == false)
+        else if (blue_can_move === false)
         {
             claim_free(0);
             return;
@@ -281,7 +281,7 @@
         var id = parseInt(e.target.dataset.id, 10),
             state = parseInt(e.target.className.charAt(2), 10);
 
-        if (active_tile >= 0 && active_tile != id && state != (current_player ? 6 : 2) && state != (current_player ? 7 : 3))
+        if (active_tile >= 0 && active_tile !== id && state !== (current_player ? 6 : 2) && state !== (current_player ? 7 : 3))
         {
             apply_tiles();
         }
@@ -291,13 +291,13 @@
             case 1:
             case 2:
             case 3:
-                if (current_player != 0)
+                if (current_player !== 0)
                     return;
                 break;
             case 5:
             case 6:
             case 7:
-                if (current_player != 1)
+                if (current_player !== 1)
                     return;
                 break;
             default: return;
@@ -305,7 +305,7 @@
 
         if (active_tile >= 0)
         {
-            if (id != active_tile && (state == 3 || state == 7))
+            if (id !== active_tile && (state === 3 || state === 7))
             {
                 // click remote tile
                 move_history.undo.push(Array.from(tiles)); // log previous state so we can undo
@@ -319,7 +319,7 @@
                 next_turn(); // switch player
                 return;
             }
-            else if (id != active_tile && (state == 2 || state == 6))
+            else if (id !== active_tile && (state === 2 || state === 6))
             {
                 // click adjacent tile
                 move_history.undo.push(Array.from(tiles)); // log previous state so we can undo
@@ -332,7 +332,7 @@
                 next_turn(); // switch player
                 return;
             }
-            else if (id == active_tile)
+            else if (id === active_tile)
             {
                 // click same tile
                 apply_tiles(); // reset board
@@ -366,7 +366,7 @@
         {
             $(".grid").className = "grid";
             $(".switch").disabled = true;
-            $(".choose").classList.add("endgame");
+            $(".layout").classList.add("endgame");
 
             if (red_tiles > blue_tiles)
                 $(".info .status").innerText = "red wins";
@@ -380,14 +380,14 @@
             $(".info .status").innerText = "game in progress";
             $(".info .player").innerText = current_player ? "blue" : "red";
             $(".switch").disabled = false;
-            $(".choose").classList.remove("endgame");
+            $(".layout").classList.remove("endgame");
         }
     }
 
     function new_game(layout = Math.floor(Math.random()*layouts.length),
                         player = Math.round(Math.random())) {
         let i = 0;
-        if (typeof layout == "number")
+        if (typeof layout === "number")
             layout = layouts[layout];
         for (let tile of Uint8Array.from(layout))
         {
@@ -398,7 +398,6 @@
         current_player = player ? 1 : 0;
         apply_tiles(); // initial apply
         next_turn();
-        chosen_layout = layout;
         move_history.undo = []; // empty the history
         move_history.redo = []; // empty the history
         $(".undo").disabled = true; // we can't undo
@@ -406,7 +405,7 @@
     }
 
     function new_click() {
-        let layout = parseInt($(".layout").value, 10);
+        let layout = parseInt($(".layout > select").value, 10);
         if (layout < 0)
             new_game();
         else
@@ -490,6 +489,65 @@
         next_turn();
     }
 
+    function save_click() {
+        let slot = parseInt($(".save > select").value, 10);
+        if (slot < 1)
+            return;
+
+        $(".save > select").value = 0;
+
+        savestate[slot - 1] = {
+            v: 1,
+            tiles: Array.from(tiles),
+            history: [
+                Array.from(move_history.undo),
+                Array.from(move_history.redo)
+            ], player: current_player
+        };
+
+        localStorage.setItem("savestate", JSON.stringify(savestate));
+        $(".status").innerText = "saved to slot " + slot;
+    }
+
+    function load_click() {
+        let slot = parseInt($(".load > select").value, 10);
+        if (slot < 1)
+            return;
+
+        $(".load > select").value = 0;
+
+        if (savestate.length < slot || savestate[slot - 1] === null)
+        {
+            $(".status").innerText = "slot " + slot + " is empty";
+            return;
+        }
+
+        if (savestate[slot - 1].v !== 1)
+        {
+            $(".status").innerText = "incompatible version";
+            return;
+        }
+
+        let i = 0;
+        for (let tile of savestate[slot - 1].tiles)
+        {
+            set_tile(i, tile);
+            i++;
+        }
+
+        current_player = savestate[slot - 1].player;
+        move_history.undo = Array.from(savestate[slot - 1].history[0]);
+        move_history.redo = Array.from(savestate[slot - 1].history[1]);
+
+        $(".undo").disabled = move_history.undo.length > 0 ? false : true;
+        $(".redo").disabled = move_history.redo.length > 0 ? false : true;
+
+        apply_tiles();
+        next_turn(false);
+
+        $(".status").innerText = "loaded slot " + slot;
+    }
+
     function hash_change() {
         if (/^#[0145]{64}$/g.exec(document.location.hash))
             new_game(document.location.hash.slice(1));
@@ -513,9 +571,11 @@
         $(".grid").appendChild(tbl);
     })();
 
-    cells = $$(".grid table td");
+    cells = $$(".grid > table td");
     $(".switch").addEventListener("click", switch_click, false);
-    $(".new").addEventListener("click", new_click, false);
+    $(".layout > button").addEventListener("click", new_click, false);
+    $(".save > select").addEventListener("change", save_click, false);
+    $(".load > select").addEventListener("change", load_click, false);
     $(".undo").addEventListener("click", undo_click, false);
     $(".redo").addEventListener("click", redo_click, false);
     $(".menu").addEventListener("click", mod_click, false);
@@ -527,10 +587,13 @@
     else
         new_game();
 
+    if ("savestate" in localStorage)
+        savestate = JSON.parse(localStorage.getItem("savestate"));
+
     // register the service worker
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker
-            .register("./worker.min.js")
+            .register("worker.min.js")
             .then(function(){ console.log("Service Worker Registered"); });
     }
 })();
