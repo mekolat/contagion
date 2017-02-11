@@ -500,7 +500,7 @@
     // build table
     (function create_table(){
         var e = 0,
-            tbl  = document.createElement('table');
+            tbl  = document.createElement("table");
         for(let i = 0; i < 8; i++){
             let tr = tbl.insertRow();
             for(let j = 0; j < 8; j++){
