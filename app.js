@@ -548,6 +548,30 @@
         $(".status").innerText = "loaded slot " + slot;
     }
 
+    function perma_click(e) {
+        let success = false,
+            range = document.createRange(),
+            before = $(".status").innerText;
+
+        window.getSelection().removeAllRanges(); // remove any leftovers
+        $(".status").innerText = document.location.href; // change status to the url
+
+        try {
+            range.selectNode($(".status")); // add status to the range
+            window.getSelection().addRange(range); // make the browser select the range
+            success = document.execCommand('copy');
+        } catch(r) {
+            success = false;
+        }
+
+        window.getSelection().removeAllRanges(); // unselect
+
+        if (success)
+            $(".status").innerText = "copied to clipboard";
+        else
+            $(".status").innerText = before;
+    }
+
     function hash_change() {
         if (/^#[0145]{64}$/g.exec(document.location.hash))
             new_game(document.location.hash.slice(1));
@@ -573,6 +597,7 @@
 
     cells = $$(".grid > table td");
     $(".switch").addEventListener("click", switch_click, false);
+    $(".perma").addEventListener("click", perma_click, false);
     $(".layout > button").addEventListener("click", new_click, false);
     $(".save > select").addEventListener("change", save_click, false);
     $(".load > select").addEventListener("change", load_click, false);
