@@ -516,7 +516,7 @@
 
         $(".load > select").value = 0;
 
-        if (savestate.length < slot || savestate[slot - 1] === null)
+        if (!((slot - 1) in savestate))
         {
             $(".status").innerText = "slot " + slot + " is empty";
             return;
@@ -548,7 +548,7 @@
         $(".status").innerText = "loaded slot " + slot;
     }
 
-    function perma_click(e) {
+    function perma_click() {
         let success = false,
             range = document.createRange(),
             before = $(".status").innerText;
