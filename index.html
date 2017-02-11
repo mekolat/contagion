@@ -5,8 +5,8 @@
 <meta http-equiv="x-ua-compatible" content="ie=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content; manifest-src 'self';">
-<!-- IMPORTANT! make default-src be 'none' whenever worker-src works -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; child-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content; manifest-src 'self';">
+<!-- IMPORTANT! remove child-src after CSPv3 gets adopted by major vendors (for worker-src) -->
 
 <!-- google -->
 <meta name="theme-color" content="#F5F5DC">
@@ -79,6 +79,9 @@
         <option value="4">slot 4</option>
         <option value="5">slot 5</option>
         <option value="6">slot 6</option>
+        <option value="7">slot 7</option>
+        <option value="8">slot 8</option>
+        <option value="9">slot 9</option>
     </select></td><td class="load">
     <select>
         <option value="0">load</option>
@@ -88,6 +91,9 @@
         <option value="4">slot 4</option>
         <option value="5">slot 5</option>
         <option value="6">slot 6</option>
+        <option value="7">slot 7</option>
+        <option value="8">slot 8</option>
+        <option value="9">slot 9</option>
     </select></td></tr>
 <tr><th>Links</th><td colspan="2"><ul><li><a href="#" class="perma">permalink</a>
 <li><a href="https://gitlab.com/gumiko/contagion" target="_blank" rel="noopener">source code</a>

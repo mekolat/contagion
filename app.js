@@ -489,8 +489,10 @@
         next_turn();
     }
 
-    function save_click() {
-        let slot = parseInt($(".save > select").value, 10);
+    function save_click(slot) {
+        if (typeof slot !== "number")
+            slot = parseInt($(".save > select").value, 10);
+
         if (slot < 1)
             return;
 
@@ -509,14 +511,16 @@
         $(".status").innerText = "saved to slot " + slot;
     }
 
-    function load_click() {
-        let slot = parseInt($(".load > select").value, 10);
+    function load_click(slot) {
+        if (typeof slot !== "number")
+            slot = parseInt($(".load > select").value, 10);
+
         if (slot < 1)
             return;
 
         $(".load > select").value = 0;
 
-        if (!((slot - 1) in savestate))
+        if (!((slot - 1) in savestate) || savestate[slot - 1] === null)
         {
             $(".status").innerText = "slot " + slot + " is empty";
             return;
@@ -572,8 +576,28 @@
             $(".status").innerText = before;
     }
 
+    function key_press(e) {
+        let num = 0;
+
+        if ((num = /^(?:Digit|Numpad)(\d)$/.exec(e.code)) !== null)
+        {
+            num = parseInt(num[1], 10);
+
+            if (num < 1)
+                new_game();
+
+            else
+            {
+                if (e.shiftKey)
+                    save_click(num);
+                else
+                    load_click(num);
+            }
+        }
+    }
+
     function hash_change() {
-        if (/^#[0145]{64}$/g.exec(document.location.hash))
+        if (/^#[0145]{64}$/g.test(document.location.hash))
             new_game(document.location.hash.slice(1));
     }
 
@@ -596,6 +620,7 @@
     })();
 
     cells = $$(".grid > table td");
+
     $(".switch").addEventListener("click", switch_click, false);
     $(".perma").addEventListener("click", perma_click, false);
     $(".layout > button").addEventListener("click", new_click, false);
@@ -605,9 +630,9 @@
     $(".redo").addEventListener("click", redo_click, false);
     $(".menu").addEventListener("click", mod_click, false);
     window.addEventListener("hashchange", hash_change, false);
-    $(".info").style.display = "block";
+    document.addEventListener("keyup", key_press, false);
 
-    if (/^#[0145]{64}$/g.exec(document.location.hash))
+    if (/^#[0145]{64}$/g.test(document.location.hash))
         new_game(document.location.hash.slice(1));
     else
         new_game();
@@ -619,6 +644,7 @@
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker
             .register("worker.min.js")
-            .then(function(){ console.log("Service Worker Registered"); });
+            .then(function(){ console.info("Service Worker Registered"); })
+            .catch(function(){ console.warn("Service Worker Unavailable"); });
     }
 })();
