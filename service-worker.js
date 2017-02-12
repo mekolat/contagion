@@ -1,23 +1,23 @@
 var cacheName = "Contagion-{{git-rev}}";
 var essentialFiles = [
-    "/",
-    "/app.js",
-    "/default.css",
-    "/normalize.css",
+    "./",
+    "app.js",
+    "default.css",
+    "normalize.css",
 ];
 var miscFiles = [
-    "/manifest.json",
-    "/license.html",
-    "/LICENSE",
-    "/favicon.ico",
-    "/icons/512.svg",
-    "/icons/512.png",
-    "/icons/256.png",
-    "/icons/144.png",
-    "/icons/128.png",
-    "/icons/64.png",
-    "/icons/48.png",
-    "/icons/32.png",
+    "manifest.json",
+    "license.html",
+    "LICENSE",
+    "favicon.ico",
+    "icons/512.svg",
+    "icons/512.png",
+    "icons/256.png",
+    "icons/144.png",
+    "icons/128.png",
+    "icons/64.png",
+    "icons/48.png",
+    "icons/32.png",
 ];
 
 self.addEventListener("install", function(e) {
