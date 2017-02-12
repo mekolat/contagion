@@ -1,7 +1,7 @@
-var cacheName = "Contagion-static-{{git-rev}}";
+var cacheName = "Contagion-{{git-rev}}";
 var essentialFiles = [
     "/",
-    "/app.min.js",
+    "/app.js",
     "/default.css",
     "/normalize.css",
 ];
@@ -32,7 +32,7 @@ self.addEventListener("install", function(e) {
 });
 
 self.addEventListener("activate", function(e) {
-    console.log("[ServiceWorker] Activate");
+    console.log("[ServiceWorker] Activate", cacheName);
     e.waitUntil(
         caches.keys().then(function(keyList) {
             return Promise.all(keyList.map(function(key) {

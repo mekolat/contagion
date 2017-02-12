@@ -12,9 +12,9 @@ pages:
     - unzip -o compiler-latest.zip
     - mv closure*.jar compiler.jar
     - chmod u+x compiler.jar
-    - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=app.min.js app.js
-    - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=worker.min.js service-worker.js
     - mkdir -p public
+    - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=public/app.js app.js
+    - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=public/service-worker.js service-worker.js
     - mv index.html public/
     - mv license.html public/
     - mv LICENSE public/

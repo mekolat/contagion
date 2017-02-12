@@ -552,10 +552,13 @@
         $(".status").innerText = "loaded slot " + slot;
     }
 
-    function perma_click() {
+    function perma_click(e) {
         let success = false,
             range = document.createRange(),
             before = $(".status").innerText;
+
+        e.preventDefault();
+        e.stopPropagation();
 
         window.getSelection().removeAllRanges(); // remove any leftovers
         $(".status").innerText = document.location.href; // change status to the url
@@ -579,7 +582,7 @@
     function key_press(e) {
         let num = 0;
 
-        if ((num = /^(?:Digit|Numpad)(\d)$/.exec(e.code)) !== null)
+        if (e.isTrusted && (num = /^(?:Digit|Numpad)(\d)$/.exec(e.code)) !== null)
         {
             num = parseInt(num[1], 10);
 
@@ -596,8 +599,8 @@
         }
     }
 
-    function hash_change() {
-        if (/^#[0145]{64}$/g.test(document.location.hash))
+    function hash_change(e) {
+        if (e.isTrusted && /^#[0145]{64}$/g.test(document.location.hash))
             new_game(document.location.hash.slice(1));
     }
 
@@ -643,7 +646,7 @@
     // register the service worker
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker
-            .register("worker.min.js")
+            .register("service-worker.js")
             .then(function(){ console.info("Service Worker Registered"); })
             .catch(function(){ console.warn("Service Worker Unavailable"); });
     }
