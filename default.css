@@ -1,16 +1,41 @@
-body {
-    background: beige;
+html
+{
+    font-family: sans-serif;
+    line-height: 1.15;
 }
-.grid {
+
+body
+{
+    background: #f5f5dc;
+    margin: 0;
+}
+
+a:active,a:hover
+{
+    outline-width: 0;
+}
+
+button,select
+{
+    margin: 0;
+    font: 100%/1.15 sans-serif;
+}
+
+.grid
+{
     margin: 3em;
     min-height: 276px;
 }
-.grid table {
+
+.grid table
+{
     border-collapse: collapse;
     border: solid 3px lime;
     background: #eee;
 }
-.grid td {
+
+.grid td
+{
     width: 32px;
     height: 32px;
     margin: 0;
@@ -18,100 +43,137 @@ body {
     border: solid 2px #fff;
     cursor: default;
 }
-.grid td.active {
-    box-shadow: inset 0px 0px 0px 2px lime;
+
+.grid td.active
+{
+    box-shadow: inset 0 0 0 2px lime;
 }
-.grid td.c_1 {
+
+.grid td.c_1
+{
     background: red;
 }
-.grid td.c_2 {
+
+.grid td.c_2
+{
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8X7j7PwAHzgMs83OEjQAAAABJRU5ErkJggg==) no-repeat center;
     background-size: 24px 24px;
 }
-.grid td.c_3 {
+
+.grid td.c_3
+{
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v2vXfwAIpwN0PEcUIgAAAABJRU5ErkJggg==) no-repeat center;
     background-size: 20px 20px;
 }
-.grid td.c_4 {
+
+.grid td.c_4
+{
     background: #222;
-    box-shadow: inset 0px 0px 0px 1px #eee;
+    box-shadow: inset 0 0 0 1px #eee;
 }
-.grid td.c_5 {
+
+.grid td.c_5
+{
     background: #0080ff;
 }
-.grid td.c_6 {
+
+.grid td.c_6
+{
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMSPj/HwAFpwLAMvJk8gAAAABJRU5ErkJggg==) no-repeat center;
     background-size: 24px 24px;
 }
-.grid td.c_7 {
+
+.grid td.c_7
+{
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mPctev/fwAIHQN0gZQUiwAAAABJRU5ErkJggg==) no-repeat center;
     background-size: 20px 20px;
 }
 
-.grid.p0 td.c_1, .grid.p1 td.c_5 {
+.grid.p0 td.c_1,.grid.p1 td.c_5
+{
     cursor: pointer;
 }
-.grid.p1 td.c_1, .grid.p0 td.c_5 {
+
+.grid.p1 td.c_1,.grid.p0 td.c_5
+{
     cursor: not-allowed;
 }
-.grid.p0 td.c_2, .grid.p1 td.c_6 {
+
+.grid.p0 td.c_2,.grid.p1 td.c_6
+{
     cursor: cell;
 }
-.grid.p0 td.c_3, .grid.p1 td.c_7 {
+
+.grid.p0 td.c_3,.grid.p1 td.c_7
+{
     cursor: crosshair;
 }
 
-.grid.p0 td.c_1:hover, .grid.p0 td.c_2:hover, .grid.p0 td.c_3:hover,
-.grid.p1 td.c_5:hover, .grid.p1 td.c_6:hover, .grid.p1 td.c_7:hover {
-    opacity: 0.4;
+.grid.p0 td.c_1:hover,.grid.p0 td.c_2:hover,.grid.p0 td.c_3:hover,.grid.p1 td.c_5:hover,.grid.p1 td.c_6:hover,.grid.p1 td.c_7:hover
+{
+    opacity: .4;
 }
 
-
-.info table {
+.info table
+{
     margin: 3em;
     width: 274px;
 }
-.info th, .info td {
+
+.info th,.info td
+{
     text-align: left;
     border: solid 1px #fff;
     min-width: 50px;
 }
-.info td.score.blue {
-    background: lightblue;
+
+.info td.score.blue
+{
+    background: #add8e6;
     text-align: center;
 }
-.info td.score.red {
+
+.info td.score.red
+{
     background: red;
     text-align: center;
     color: #fff;
 }
-.info td.endgame {
+
+.info td.endgame
+{
     animation: blink 1s ease-in-out infinite alternate;
-    background: yellow;
+    background: #ff0;
 }
 
 @keyframes blink {
-   50% {
+    50%
+    {
         border-color: purple;
-        background: orangered;
+        background: #ff4500;
     }
 }
 
-.menu {
+.menu
+{
     display: none;
     position: fixed;
-    border: 1px solid #B2B2B2;
+    border: 1px solid #b2b2b2;
     width: 150px;
-    background: #F9F9F9;
-    box-shadow: 3px 3px 2px #E9E9E9;
+    background: #f9f9f9;
+    box-shadow: 3px 3px 2px #e9e9e9;
     border-radius: 4px;
 }
-.menu span {
+
+.menu span
+{
     margin: 8px;
-    font-weight: bold;
+    font-weight: 700;
     cursor: default;
 }
-.menu .items {
+
+.menu .items
+{
     list-style: none;
     margin: 0;
     margin-top: 4px;
@@ -120,13 +182,17 @@ body {
     padding-bottom: 3px;
     color: #333;
 }
-.menu .items li {
+
+.menu .items li
+{
     padding: 3px;
     padding-left: 3px;
     cursor: pointer;
 }
-.menu .items li:hover {
-    color: white;
+
+.menu .items li:hover
+{
+    color: #fff;
     background: #284570;
     border-radius: 2px;
 }

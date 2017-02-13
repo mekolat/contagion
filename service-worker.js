@@ -3,7 +3,6 @@ var essentialFiles = [
     "./",
     "app.js",
     "default.css",
-    "normalize.css",
 ];
 var miscFiles = [
     "manifest.json",

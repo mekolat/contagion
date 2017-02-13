@@ -19,7 +19,6 @@ pages:
     - mv license.html public/
     - mv LICENSE public/
     - mv default.css public/
-    - mv normalize.css public/
     - mv manifest.json public/
     - mv icons/128.ico public/favicon.ico
     - mv icons public/
