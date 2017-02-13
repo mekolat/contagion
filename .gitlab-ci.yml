@@ -9,12 +9,23 @@ pages:
   script:
     - sed -i "s/{{git-rev}}/${CI_BUILD_REF:0:7}/" service-worker.js
     - wget http://dl.google.com/closure-compiler/compiler-latest.zip
+    - wget http://mirror.csclub.uwaterloo.ca/apache/xmlgraphics/batik/binaries/batik-bin-1.8.zip
     - unzip -o compiler-latest.zip
+    - unzip -o batik-bin-1.8.zip
     - mv closure*.jar compiler.jar
     - chmod u+x compiler.jar
     - mkdir -p public
     - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=public/app.js app.js
     - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=public/service-worker.js service-worker.js
+    - pushd batik-1.8
+    - java -jar batik-rasterizer-1.8.jar -m image/png -w 16 -h 16 -d ../icons/16.png ../icons/base.svg
+    - java -jar batik-rasterizer-1.8.jar -m image/png -w 32 -h 32 -d ../icons/32.png ../icons/base.svg
+    - java -jar batik-rasterizer-1.8.jar -m image/png -w 64 -h 64 -d ../icons/64.png ../icons/base.svg
+    - java -jar batik-rasterizer-1.8.jar -m image/png -w 128 -h 128 -d ../icons/128.png ../icons/base.svg
+    - java -jar batik-rasterizer-1.8.jar -m image/png -w 144 -h 144 -d ../icons/144.png ../icons/base.svg
+    - java -jar batik-rasterizer-1.8.jar -m image/png -w 256 -h 256 -d ../icons/256.png ../icons/base.svg
+    - java -jar batik-rasterizer-1.8.jar -m image/png -w 512 -h 512 -d ../icons/512.png ../icons/base.svg
+    - popd
     - mv index.html public/
     - mv license.html public/
     - mv LICENSE public/
