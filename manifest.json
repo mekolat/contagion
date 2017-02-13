@@ -10,44 +10,14 @@
   "scope": "/",
   "icons": [
     {
-      "src": "icons/512.svg",
+      "src": "icons/base.svg",
       "type": "image/svg+xml",
-      "sizes": "512x512"
-    },
-    {
-      "src": "icons/512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    },
-    {
-      "src": "icons/256.png",
-      "type": "image/png",
-      "sizes": "256x256"
+      "sizes": "any"
     },
     {
       "src": "icons/144.png",
       "type": "image/png",
       "sizes": "144x144"
-    },
-    {
-      "src": "icons/128.png",
-      "type": "image/png",
-      "sizes": "128x128"
-    },
-    {
-      "src": "icons/64.png",
-      "type": "image/png",
-      "sizes": "64x64"
-    },
-    {
-      "src": "icons/48.png",
-      "type": "image/png",
-      "sizes": "48x48"
-    },
-    {
-      "src": "icons/32.png",
-      "type": "image/png",
-      "sizes": "32x32"
     }
   ]
 }

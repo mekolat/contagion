@@ -8,15 +8,8 @@ var miscFiles = [
     "manifest.json",
     "license.html",
     "LICENSE",
-    "favicon.ico",
-    "icons/512.svg",
-    "icons/512.png",
-    "icons/256.png",
+    "icons/base.svg",
     "icons/144.png",
-    "icons/128.png",
-    "icons/64.png",
-    "icons/48.png",
-    "icons/32.png",
 ];
 
 self.addEventListener("install", function(e) {

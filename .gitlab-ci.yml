@@ -20,7 +20,6 @@ pages:
     - mv LICENSE public/
     - mv default.css public/
     - mv manifest.json public/
-    - mv icons/128.ico public/favicon.ico
     - mv icons public/
     - find public -name \*.\* -print
   artifacts:
