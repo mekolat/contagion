@@ -4,8 +4,8 @@
   "description": "Allows you to practice Contagion & make your own board layouts.",
   "lang": "en",
   "start_url": "/#from_launcher",
-  "background_color": "#F5F5DC",
-  "theme_color": "#F5F5DC",
+  "background_color": "#F9FBE7",
+  "theme_color": "#F9FBE7",
   "display": "standalone",
   "scope": "/",
   "icons": [

@@ -6,7 +6,8 @@ html
 
 body
 {
-    background: #f5f5dc;
+    background: #F9FBE7;
+    color: #212121;
     margin: 0;
 }
 
@@ -30,8 +31,8 @@ button,select
 .grid table
 {
     border-collapse: collapse;
-    border: solid 3px lime;
-    background: #eee;
+    border: solid 3px #AEEA00;
+    background: #F0F4C3;
 }
 
 .grid td
@@ -40,52 +41,57 @@ button,select
     height: 32px;
     margin: 0;
     padding: 0;
-    border: solid 2px #fff;
+    border: solid 2px #F9FBE7;
     cursor: default;
 }
 
-.grid td.active
+.grid.p0 td.active
 {
-    box-shadow: inset 0 0 0 2px lime;
+    box-shadow: inset 0 0 0 2px #FCE4EC;
+}
+
+.grid.p1 td.active
+{
+    box-shadow: inset 0 0 0 2px #E0F7FA;
 }
 
 .grid td.c_1
 {
-    background: red;
+    background: #E91E63;
 }
 
 .grid td.c_2
 {
-    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8X7j7PwAHzgMs83OEjQAAAABJRU5ErkJggg==) no-repeat center;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOco77hPwAFTgJ0YABB+AAAAABJRU5ErkJggg==) no-repeat center;
     background-size: 24px 24px;
 }
 
 .grid td.c_3
 {
-    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v2vXfwAIpwN0PEcUIgAAAABJRU5ErkJggg==) no-repeat center;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mM8N/nGfwAHqgM69KZzsAAAAABJRU5ErkJggg==) no-repeat center;
     background-size: 20px 20px;
 }
 
 .grid td.c_4
 {
-    background: #222;
-    box-shadow: inset 0 0 0 1px #eee;
+    background: #827717;
+    box-shadow: inset 0 0 0 1px #E6EE9C;
 }
 
 .grid td.c_5
 {
-    background: #0080ff;
+    background: #00BCD4;
 }
 
 .grid td.c_6
 {
-    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMSPj/HwAFpwLAMvJk8gAAAABJRU5ErkJggg==) no-repeat center;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkmNbxHwAD2wIfqFBsewAAAABJRU5ErkJggg==) no-repeat center;
     background-size: 24px 24px;
 }
 
 .grid td.c_7
 {
-    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mPctev/fwAIHQN0gZQUiwAAAABJRU5ErkJggg==) no-repeat center;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNsOH3kPwAG8gMQE6hCawAAAABJRU5ErkJggg==) no-repeat center;
     background-size: 20px 20px;
 }
 
@@ -127,17 +133,22 @@ button,select
     min-width: 50px;
 }
 
+.info td.score
+{
+    text-align: center;
+    font-weight: bold;
+}
+
 .info td.score.blue
 {
-    background: #add8e6;
-    text-align: center;
+    background: #00BCD4;
+    color: #E0F7FA;
 }
 
 .info td.score.red
 {
-    background: red;
-    text-align: center;
-    color: #fff;
+    background: #E91E63;
+    color: #FCE4EC;
 }
 
 .info td.endgame
