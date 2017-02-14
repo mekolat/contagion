@@ -10,6 +10,7 @@ pages:
     - apt-get -qq update
     - apt-get install -qq -y imagemagick
     - sed -i "s/{{git-rev}}/${CI_BUILD_REF:0:7}/" service-worker.js
+    - sed -i "s/{{git-rev}}/${CI_BUILD_REF:0:7}/g" index.html
     - wget http://dl.google.com/closure-compiler/compiler-latest.zip
     - unzip -o compiler-latest.zip
     - mv closure*.jar compiler.jar

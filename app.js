@@ -647,7 +647,13 @@
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker
             .register("service-worker.js")
-            .then(function(){ console.info("Service Worker Registered"); })
+            .then(function(){
+                console.info("Service Worker Registered");
+                $(".online").innerText = "Available offline";
+                $(".online").className = "offline";
+            })
             .catch(function(){ console.warn("Service Worker Unavailable"); });
     }
+    else
+        console.warn("Navigator does not support Service Workers.");
 })();

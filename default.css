@@ -146,6 +146,21 @@ button,select
     background: #ff0;
 }
 
+.info td.rev
+{
+    font: x-small monospace;
+}
+
+.info td.online
+{
+    color: #999;
+}
+
+.info td.offline
+{
+    color: #00A200;
+}
+
 @keyframes blink {
     50%
     {
