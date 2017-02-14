@@ -20,24 +20,24 @@ pages:
     - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=public/app.js app.js
     - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=public/service-worker.js service-worker.js
     # convert our base SVG into many PNG files
-    - convert -background none icons/base.svg -resize x16 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/16.png # all
-    - convert -background none icons/base.svg -resize x32 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/32.png # apple
-    - convert -background none icons/base.svg -resize x36 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/36.png # google
-    - convert -background none icons/base.svg -resize x48 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/48.png # google
-    - convert -background none icons/base.svg -resize x64 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/64.png
-    - convert -background none icons/base.svg -resize x70 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/70.png # microsoft
-    - convert -background none icons/base.svg -resize x72 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/72.png # google
-    - convert -background none icons/base.svg -resize x96 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/96.png # google
-    - convert -background none icons/base.svg -resize x128 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/128.png
-    - convert -background none icons/base.svg -resize x144 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/144.png # google, microsoft, apple
-    - convert -background none icons/base.svg -resize x150 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/150.png # microsoft
-    - convert -background none icons/base.svg -resize x180 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/180.png # apple
-    - convert -background none icons/base.svg -resize x192 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/192.png # google
-    - convert -background none icons/base.svg -resize x256 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/256.png
-    - convert -background none icons/base.svg -resize x310 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/310.png # microsoft
-    - convert -background none icons/base.svg -resize x512 -colors 64 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/512.png # google
+    - convert -background none icons/base.svg -resize x16 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/16.png # all
+    - convert -background none icons/base.svg -resize x32 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/32.png # apple
+    - convert -background none icons/base.svg -resize x36 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/36.png # google
+    - convert -background none icons/base.svg -resize x48 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/48.png # google
+    - convert -background none icons/base.svg -resize x64 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/64.png
+    - convert -background none icons/base.svg -resize x70 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/70.png # microsoft
+    - convert -background none icons/base.svg -resize x72 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/72.png # google
+    - convert -background none icons/base.svg -resize x96 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/96.png # google
+    - convert -background none icons/base.svg -resize x128 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/128.png
+    - convert -background none icons/base.svg -resize x144 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/144.png # google, microsoft, apple
+    - convert -background none icons/base.svg -resize x150 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/150.png # microsoft
+    - convert -background none icons/base.svg -resize x180 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/180.png # apple
+    - convert -background none icons/base.svg -resize x192 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/192.png # google
+    - convert -background none icons/base.svg -resize x256 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/256.png
+    - convert -background none icons/base.svg -resize x310 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/310.png # microsoft
+    - convert -background none icons/base.svg -resize x512 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/512.png # google
     # convert base SVG into ico
-    - convert -background none icons/base.svg -define icon:auto-resize=16,32,48 -colors 64 public/favicon.ico
+    - convert -background none icons/base.svg -define icon:auto-resize=16,32,48 -colors 256 public/favicon.ico
     # move our assets in the public folder
     - mv index.html public/
     - mv license.html public/
