@@ -7,31 +7,43 @@ pages:
   only:
     - master
   script:
+    - apt-get -qq update
+    - apt-get install -qq -y imagemagick
     - sed -i "s/{{git-rev}}/${CI_BUILD_REF:0:7}/" service-worker.js
     - wget http://dl.google.com/closure-compiler/compiler-latest.zip
-    - wget http://mirror.csclub.uwaterloo.ca/apache/xmlgraphics/batik/binaries/batik-bin-1.8.zip
     - unzip -o compiler-latest.zip
-    - unzip -o batik-bin-1.8.zip
     - mv closure*.jar compiler.jar
     - chmod u+x compiler.jar
     - mkdir -p public
+    # compile the javascript files with Google Closure
     - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=public/app.js app.js
     - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file=public/service-worker.js service-worker.js
-    - pushd batik-1.8
-    - java -jar batik-rasterizer-1.8.jar -m image/png -w 16 -h 16 -d ../icons/16.png ../icons/base.svg
-    - java -jar batik-rasterizer-1.8.jar -m image/png -w 32 -h 32 -d ../icons/32.png ../icons/base.svg
-    - java -jar batik-rasterizer-1.8.jar -m image/png -w 64 -h 64 -d ../icons/64.png ../icons/base.svg
-    - java -jar batik-rasterizer-1.8.jar -m image/png -w 128 -h 128 -d ../icons/128.png ../icons/base.svg
-    - java -jar batik-rasterizer-1.8.jar -m image/png -w 144 -h 144 -d ../icons/144.png ../icons/base.svg
-    - java -jar batik-rasterizer-1.8.jar -m image/png -w 256 -h 256 -d ../icons/256.png ../icons/base.svg
-    - java -jar batik-rasterizer-1.8.jar -m image/png -w 512 -h 512 -d ../icons/512.png ../icons/base.svg
-    - popd
+    # convert our base SVG into many PNG files
+    - convert -background none icons/base.svg -resize x16 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/16.png # all
+    - convert -background none icons/base.svg -resize x32 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/32.png # apple
+    - convert -background none icons/base.svg -resize x36 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/36.png # google
+    - convert -background none icons/base.svg -resize x48 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/48.png # google
+    - convert -background none icons/base.svg -resize x64 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/64.png
+    - convert -background none icons/base.svg -resize x70 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/70.png # microsoft
+    - convert -background none icons/base.svg -resize x96 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/96.png # google
+    - convert -background none icons/base.svg -resize x128 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/128.png
+    - convert -background none icons/base.svg -resize x144 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/144.png # google, microsoft, apple
+    - convert -background none icons/base.svg -resize x150 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/150.png # microsoft
+    - convert -background none icons/base.svg -resize x180 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/180.png # apple
+    - convert -background none icons/base.svg -resize x192 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/192.png # google
+    - convert -background none icons/base.svg -resize x256 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/256.png
+    - convert -background none icons/base.svg -resize x310 -colors 256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/310.png # microsoft
+    # convert our small PNGs into an ICO file
+    - convert icons/16.png icons/32.png icons/48.png -colors 256 public/favicon.ico
+    # move our assets in the public folder
     - mv index.html public/
     - mv license.html public/
     - mv LICENSE public/
     - mv default.css public/
     - mv manifest.json public/
+    - mv browserconfig.xml public/
     - mv icons public/
+    # list public files recursively
     - find public -name \*.\* -print
   artifacts:
     paths:

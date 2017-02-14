@@ -9,7 +9,7 @@ var miscFiles = [
     "license.html",
     "LICENSE",
     "icons/base.svg",
-    "icons/144.png",
+    "favicon.ico",
 ];
 
 self.addEventListener("install", function(e) {

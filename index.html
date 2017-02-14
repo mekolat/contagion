@@ -8,23 +8,25 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; child-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content; manifest-src 'self';">
 <!-- IMPORTANT! remove child-src after CSPv3 gets adopted by major vendors (for worker-src) -->
 
+
 <!-- google -->
 <meta name="theme-color" content="#F5F5DC">
+<link rel="manifest" href="manifest.json">
 
 <!-- apple -->
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Contagion">
-<link rel="apple-touch-icon" href="icons/144.png">
-<link rel="mask-icon" href="icons/base.svg" color="lime">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/180.png">
+<link rel="mask-icon" href="icons/base.svg" color="#5BBAD5">
 
 <!-- microsoft -->
-<meta name="msapplication-TileImage" content="icons/144.png">
-<meta name="msapplication-TileColor" content="#F5F5DC">
+<meta name="msapplication-config" content="browserconfig.xml">
+
+<!-- generic -->
+<link rel="shortcut icon" type="image/svg+xml" href="icons/base.svg">
+<link rel="icon" type="image/png" href="icons/32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="icons/16.png" sizes="16x16">
 
 <title>Contagion</title>
-<link rel="shortcut icon" href="icons/base.svg">
-<link rel="manifest" href="manifest.json">
 <link href="default.css" rel="stylesheet">
 </head>
 <body>
