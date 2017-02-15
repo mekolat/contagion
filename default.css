@@ -33,6 +33,7 @@ button,select
     border-collapse: collapse;
     border: solid 3px #AEEA00;
     background: #F0F4C3;
+    min-width: 274px;
 }
 
 .grid td
@@ -120,9 +121,13 @@ button,select
     opacity: .4;
 }
 
-.info table
+.info
 {
     margin: 3em;
+}
+
+.info table
+{
     width: 274px;
 }
 
@@ -221,4 +226,16 @@ button,select
     color: #fff;
     background: #284570;
     border-radius: 2px;
+}
+
+@media only screen and (max-width: 500px)
+{
+    .info, .grid
+    {
+        margin: 2em 0 0 0;
+    }
+
+    .info table, .grid table {
+        margin: auto;
+    }
 }
