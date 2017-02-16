@@ -1,7 +1,7 @@
 var cacheName = "Contagion-{{git-rev}}";
 var essentialFiles = [
     "./",
-    "app.js",
+    "app.min.js",
     "default.css",
 ];
 var miscFiles = [
