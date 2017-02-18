@@ -1,296 +1,389 @@
-(function(){
+ (function(){
     "use strict";
-    var $ = document.querySelector.bind(document),
+
+    class Grid {
+        constructor(node, size=8) {
+            this.size = size; // board size (size * size)
+            this.num_tiles = size ** 2; // total number of tiles
+            this.free_tiles = this.num_tiles; // number of free tiles
+            this.red_tiles = 0; // number of red tiles
+            this.blue_tiles = 0; // number of blue tiles
+            this.node = node; // the grid node
+            this.tiles = new Array(this.num_tiles); // array containing all Tile()
+            this._active = null; // the highlighted tile
+            this.make_table();
+        }
+
+        apply() {
+            this.tiles.forEach(tile => tile.color = tile.value);
+            this.active = null;
+        }
+
+        get active() {
+            return this._active;
+        }
+
+        set active(t) {
+            if (this._active !== null)
+                this._active.node.classList.remove("active");
+
+            if (t === null)
+            {
+                this._active = null;
+                return;
+            }
+
+            this._active = this.tiles[t.id];
+            this._active.node.classList.add("active");
+        }
+
+        make_table() {
+            let e = 0,
+                tbl  = document.createElement("table");
+
+            for(let i = 0; i < this.size; i++){
+                let tr = tbl.insertRow();
+                for(let j = 0; j < this.size; j++){
+                    this.tiles[e] = new Tile(this, e++, tr);
+                }
+            }
+
+            this.node.appendChild(tbl);
+        }
+    }
+
+    class Tile {
+        constructor(parent, id, tr) {
+            this.id = id;
+            this.parent = parent; // grid
+            this.rpos = id % this.parent.size; // position in row
+            this.cpos = Math.floor(id / this.parent.size); // position in column
+            this.node = tr.insertCell(); // DOM element
+            this._color = 0; // highlight color
+            this._value = 0; // actual value
+
+            this.node.addEventListener("click", () => this.parent.node.dispatchEvent(new CustomEvent("cell_click", {detail: this.id})), false);
+            this.node.addEventListener("contextmenu", e => this.parent.node.dispatchEvent(new CustomEvent("cell_rclick", {detail: [e, this.id]})), false);
+        }
+
+        get color() {
+            return this._color;
+        }
+
+        set color(c) {
+            c = Math.max(0, Math.min(c, 7));
+            if (this._color !== c)
+            {
+                this.node.className = "c_" + c;
+                this._color = c;
+            }
+        }
+
+        get value() {
+            return this._value;
+        }
+
+        set value(v) {
+            v = Math.max(0, Math.min(v, 7));
+
+            switch (this.value) {
+                case v: return; // don't do anything
+                case 1: this.parent.red_tiles--; break;
+                case 5: this.parent.blue_tiles--; break;
+                case 0: this.parent.free_tiles--;
+            }
+
+            switch (v) {
+                case 1: this.parent.red_tiles++; break;
+                case 5: this.parent.blue_tiles++; break;
+                case 0: this.parent.free_tiles++;
+            }
+
+            this._value = v;
+        }
+
+        get neighbors() {
+            let n = [new Set(), new Set()];
+
+            // remotes
+            if (this.id - (this.parent.size * 2) >= 0)
+                n[0].add(this.parent.tiles[this.id - (this.parent.size * 2)]);
+            if (this.id - 2 >= 0 && this.rpos > 1)
+                n[0].add(this.parent.tiles[this.id - 2]);
+            if (this.id + 2 < this.parent.num_tiles && this.rpos < (this.parent.size - 2))
+                n[0].add(this.parent.tiles[this.id + 2]);
+            if (this.id + (this.parent.size * 2) < this.parent.num_tiles)
+                n[0].add(this.parent.tiles[this.id + (this.parent.size * 2)]);
+
+            // siblings
+            if (this.id - (this.parent.size + 1) >= 0 && this.rpos > 0)
+                n[1].add(this.parent.tiles[this.id - (this.parent.size + 1)]);
+            if (this.id - this.parent.size >= 0)
+               n[1].add(this.parent.tiles[this.id - this.parent.size]);
+            if (this.id - (this.parent.size - 1) >= 0 && this.rpos < (this.parent.size - 1))
+                n[1].add(this.parent.tiles[this.id - (this.parent.size - 1)]);
+            if (this.id - 1 >= 0 && this.rpos > 0)
+                n[1].add(this.parent.tiles[this.id - 1]);
+            if (this.id + 1 < this.parent.num_tiles && this.rpos < (this.parent.size - 1))
+                n[1].add(this.parent.tiles[this.id + 1]);
+            if (this.id + (this.parent.size - 1) < this.parent.num_tiles && this.rpos > 0)
+                n[1].add(this.parent.tiles[this.id + (this.parent.size - 1)]);
+            if (this.id + this.parent.size < this.parent.num_tiles)
+                n[1].add(this.parent.tiles[this.id + this.parent.size]);
+            if (this.id + (this.parent.size + 1) < this.parent.num_tiles && this.rpos < (this.parent.size - 1))
+                n[1].add(this.parent.tiles[this.id + (this.parent.size + 1)]);
+
+            return n;
+        }
+    }
+
+
+    // on init
+    const $ = document.querySelector.bind(document),
         $$ = document.querySelectorAll.bind(document),
-        tiles = new Uint8Array(64),
-        cells,
-        current_player = 0,
-        active_tile = -1,
-        red_tiles = 0,
-        blue_tiles = 0,
-        free_tiles = 64,
-        right_click_id = -1,
-        move_history = {undo: [], redo: []},
-        savestate = [],
-        layouts = [
-                    "1000000500000000000000000000000000000000000000000000000050000001", // gumi (01)
-                    "1400004544000044000000000000000000000000000000004400004414000045", // gumi (02)
-                    "1000000004400000040000000000000000000000000000400000044000000005", // gumi (03)
-                    "5040040500400400440000440000000000000000440000440040040010400401", // gumi (04)
-                    "0000000000000000004004001004400510044005004004000000000000000000", // gumi (05)
-                    "0000000004000040100440050040040000400400100440050400004000000000", // gumi (06)
-                    "0000000004000040004554000004400000044000004114000400004000000000", // gumi (07)
-                    "1004400500044000000440000000000000000000000440000004400050044001", // gumi (08)
-                    "0000000000000000000110000044440000444400000550000000000000000000", // gumi (09)
-                    "4004400440044004040000401400004514000045040000404004400440044004", // gumi (10)
-                    "1000005001000005100000500100000510000050010000051000005001000005", // gumi (11)
-                    "1000000504400440044004400004400000044000044004400440044050000001", // gumi (12)
-                    "0000000000400400044114400054450000544500044114400040040000000000", // gumi (13)
-                    "5004400100000000004004004000000440000004004004000000000010044005", // gumi (14)
-                    "0001500000100500010000501000000550000001050000100050010000051000", // gumi (15)
-                    "1040400000040405104040000004040510404000000404051040400000040405", // gumi (16)
-                    "1000000501000050001005000001500000051000005001000500001050000001", // gumi (17)
-                    "0000000004444440040005400400004004000040041000400444444000000000", // gumi (18)
-                    "5000000104044040040000400000000000144500000000000004400000400400", // Tirifto (01)
-                    "0004500004000040004004001000000440000001004004000400004000054000", // Tirifto (02)
-                    "4440044445000014404004040000000000000000404004044100005444400444", // Tirifto (03)
-                    "0001100000044000000000001400004514000045000000000004400000055000", // Tirifto (04)
-                    "4100005414000045000000000000000000000000000000005400004145000014", // Tirifto (05)
-                    "4000000401000050004444000040040000400400004444000500001040000004", // Tirifto (06)
-                    "0140045014000045400040040040000000000400400400045400004105400410", // Tirifto (07)
-                    "0050500405050000505004000500000150000010004001010000101040010100", // Tirifto (08)
-                  ];
+        grid = new Grid($(".grid"));
 
-    function set_cell(cell, val = 0) {
-        cell = cells[cell];
-        cell.className = "c_" + val;
-    }
 
-    function set_tile(tile, val = 0) {
-        if (tiles[tile] === val)
-            return;
 
-        if (tiles[tile] === 1)
-            red_tiles--;
-        else if (tiles[tile] === 5)
-            blue_tiles--;
-        else if (tiles[tile] === 0)
-            free_tiles--;
 
-        tiles[tile] = val;
 
-        if (val === 1)
-            red_tiles++;
-        else if (val === 5)
-            blue_tiles++;
-        else if (val === 0)
-            free_tiles++;
-    }
+    const layouts = Object.entries({
+        "gumi 01": "1000000500000000000000000000000000000000000000000000000050000001",
+        "gumi 02": "1400004544000044000000000000000000000000000000004400004414000045",
+        "gumi 03": "1000000004400000040000000000000000000000000000400000044000000005",
+        "gumi 04": "5040040500400400440000440000000000000000440000440040040010400401",
+        "gumi 05": "0000000000000000004004001004400510044005004004000000000000000000",
+        "gumi 06": "0000000004000040100440050040040000400400100440050400004000000000",
+        "gumi 07": "0000000004000040004554000004400000044000004114000400004000000000",
+        "gumi 08": "1004400500044000000440000000000000000000000440000004400050044001",
+        "gumi 09": "0000000000000000000110000044440000444400000550000000000000000000",
+        "gumi 10": "4004400440044004040000401400004514000045040000404004400440044004",
+        "gumi 11": "1000005001000005100000500100000510000050010000051000005001000005",
+        "gumi 12": "1000000504400440044004400004400000044000044004400440044050000001",
+        "gumi 13": "0000000000400400044114400054450000544500044114400040040000000000",
+        "gumi 14": "5004400100000000004004004000000440000004004004000000000010044005",
+        "gumi 15": "0001500000100500010000501000000550000001050000100050010000051000",
+        "gumi 16": "1040400000040405104040000004040510404000000404051040400000040405",
+        "gumi 17": "1000000501000050001005000001500000051000005001000500001050000001",
+        "gumi 18": "0000000004444440040005400400004004000040041000400444444000000000",
+        "Tirifto 01": "5000000104044040040000400000000000144500000000000004400000400400",
+        "Tirifto 02": "0004500004000040004004001000000440000001004004000400004000054000",
+        "Tirifto 03": "4440044445000014404004040000000000000000404004044100005444400444",
+        "Tirifto 04": "0001100000044000000000001400004514000045000000000004400000055000",
+        "Tirifto 05": "4100005414000045000000000000000000000000000000005400004145000014",
+        "Tirifto 06": "4000000401000050004444000040040000400400004444000500001040000004",
+        "Tirifto 07": "0140045014000045400040040040000000000400400400045400004105400410",
+        "Tirifto 08": "0050500405050000505004000500000150000010004001010000101040010100",
+    });
 
-    function apply_tiles() {
-        [].forEach.call(cells, function(cell, index){
-            set_cell(index, tiles[index]);
+
+    let _current_player = 0,
+        _right_click_tile = null;
+
+    const _move_history = [[], []], // undo, redo
+        savestate = [2],
+        new_game = (layout = Math.floor(Math.random()*layouts.length),
+                    player = Math.round(Math.random())) => {
+
+            if (typeof layout === "number")
+                layout = layouts[layout][1];
+
+            Uint8Array.from(layout).forEach((v, k) => grid.tiles[k].value = v);
+            grid.apply();
+            undo_history.length = 0;
+            redo_history.length = 0;
+            current_player = player|0;
+        },
+        save_click = slot => {
+            if (typeof slot !== "number")
+                slot = $(".save > select").selectedIndex;
+
+            if (slot < 1)
+                return;
+
+            $(".save > select").selectedIndex = 0;
+
+            savestate[slot] = [
+                grid.tiles.map(t => t.value).join(""),
+                undo_history.map(t => t.join("")),
+                redo_history.map(t => t.join("")),
+                Boolean(current_player)|0,
+            ];
+
+            localStorage.setItem("savestate", JSON.stringify(savestate));
+            $(".status").innerText = "saved to slot " + slot;
+        },
+        load_click = slot => {
+            if (typeof slot !== "number")
+                slot = $(".load > select").selectedIndex;
+
+            if (slot < 1)
+                return;
+
+            $(".load > select").selectedIndex = 0;
+
+            if (!(slot in savestate) || savestate[slot] === null)
+            {
+                $(".status").innerText = "slot " + slot + " is empty";
+                return;
+            }
+
+            undo_history.length = 0;
+            redo_history.length = 0;
+            Uint8Array.from(savestate[slot][0]).forEach((v, k) => grid.tiles[k].value = v);
+            savestate[slot][1].forEach(v => undo_history.push(Uint8Array.from(v)));
+            savestate[slot][2].forEach(v => redo_history.push(Uint8Array.from(v)));
+
+            grid.apply();
+            current_player = Boolean(savestate[slot][3])|0;
+
+            $(".status").innerText = "loaded slot " + slot;
+        },
+        undo_history = new Proxy(_move_history[0], {
+            set: (target, name, value) => {
+                target[name] = value;
+                $(".undo").disabled = (target.length < 1);
+                return true;
+            }
+        }),
+        redo_history = new Proxy(_move_history[1], {
+            set: (target, name, value) => {
+                target[name] = value;
+                $(".redo").disabled = (target.length < 1);
+                return true;
+            }
         });
 
-        active_tile = -1;
-    }
+    Reflect.defineProperty(self, "current_player", {
+        get: () => _current_player,
+        set: v => {
+            grid.node.classList.remove("p" + _current_player);
+            grid.node.classList.add("p" + v);
+            $(".info .player").innerText = "(none)";
+            $(".info .score.blue").innerText = grid.blue_tiles;
+            $(".info .score.red").innerText = grid.red_tiles;
 
-    function look_around(id, mode = 0)
-    {
-        // mode 0 = check move, 1 = highlight, 2 = contaminate
-        var rpos = id % 8,
-            cpos = Math.floor(id / 8),
+            history.replaceState({}, document.title, "#" + grid.tiles.map(t => t.value).join("") + v);
+            $(".perma").href = document.location.href;
 
-            nn = id - 16, // north 2
-            nw = id - 9, // north-west
-            n = id - 8, // north
-            ne = id - 7, // north-east
-            ww = id - 2, // west 2
-            w = id - 1, // west
-            e = id + 1, // east
-            ee = id + 2, // east 2
-            sw = id + 7, // south-west
-            s = id + 8, // south
-            se = id + 9, // south-east
-            ss = id + 16; // south 2;
+            if (grid.free_tiles < 1)
+            {
+                grid.node.className = "grid";
+                $(".switch").disabled = true;
+                $(".layout").classList.add("endgame");
 
+                if (grid.red_tiles > grid.blue_tiles)
+                    $(".info .status").innerText = "red wins";
+                else if (grid.blue_tiles > grid.red_tiles)
+                    $(".info .status").innerText = "blue wins";
+                else
+                    $(".info .status").innerText = "draw";
+            }
+            else
+            {
+                $(".info .status").innerText = "game in progress";
+                $(".info .player").innerText = v ? "blue" : "red";
+                $(".switch").disabled = false;
+                $(".layout").classList.remove("endgame");
+            }
 
-        if (mode !== 2)
-        {
-            // extremities
-            if (nn >= 0 && tiles[nn] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(nn, current_player ? 7 : 3);
-            }
-            if (ww >= 0 && rpos > 1 && tiles[ww] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(ww, current_player ? 7 : 3);
-            }
-            if (ee < 64 && rpos < 6 && tiles[ee] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(ee, current_player ? 7 : 3);
-            }
-            if (ss < 64 && tiles[ss] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(ss, current_player ? 7 : 3);
-            }
+            _current_player = v;
         }
+    });
 
-        else
-            set_tile(id, current_player ? 5 : 1); // contaminate the center
+    Reflect.defineProperty(self, "right_click_tile", {
+        get: () => _right_click_tile,
+        set: v => {
+            if (v !== null)
+            {
+                v.detail[0].preventDefault();
+                v.detail[0].stopPropagation();
+                v.stopPropagation();
+
+                $(".menu").style.left = v.detail[0].clientX + "px";
+                $(".menu").style.top = v.detail[0].clientY + "px";
+                $(".menu").style.display = "block";
+                v = grid.tiles[v.detail[1]];
+
+                if (grid.active !== null)
+                    grid.apply();
+            }
+
+            else
+                $(".menu").style.display = "none";
+
+            _right_click_tile = v;
+        }
+    });
+
+    Reflect.defineProperty(self, "easter_egg", {
+        get: () => document.location.href = "https://youtu.be/lbWhFhITBhg",
+    });
 
 
-        // adjacent
-        if (nw >= 0 && rpos > 0)
-        {
-            if (tiles[nw] === (current_player ? 1 : 5) && mode === 2)
-                set_tile(nw, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[nw] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(nw, current_player ? 6 : 2);
-            }
-        }
-        if (n >= 0)
-        {
-            if (tiles[n] === (current_player ? 1 : 5) && mode === 2)
-                set_tile(n, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[n] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(n, current_player ? 6 : 2);
-            }
-        }
-        if (ne >= 0 && rpos < 7)
-        {
-            if (tiles[ne] === (current_player ? 1 : 5) && mode === 2)
-                set_tile(ne, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[ne] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(ne, current_player ? 6 : 2);
-            }
-        }
-        if (w >= 0 && rpos > 0)
-        {
-            if (tiles[w] === (current_player ? 1 : 5) && mode === 2)
-                set_tile(w, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[w] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(w, current_player ? 6 : 2);
-            }
-        }
-        if (e < 64 && rpos < 7)
-        {
-            if (tiles[e] === (current_player ? 1 : 5) && mode === 2)
-                set_tile(e, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[e] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(e, current_player ? 6 : 2);
-            }
-        }
-        if (sw < 64 && rpos > 0)
-        {
-            if (tiles[sw] === (current_player ? 1 : 5) && mode === 2)
-                set_tile(sw, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[sw] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(sw, current_player ? 6 : 2);
-            }
-        }
-        if (s < 64)
-        {
-            if (tiles[s] === (current_player ? 1 : 5) && mode === 2)
-                set_tile(s, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[s] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(s, current_player ? 6 : 2);
-            }
-        }
-        if (se < 64 && rpos < 7)
-        {
-            if (tiles[se] === (current_player ? 1 : 5) && mode === 2)
-                set_tile(se, current_player ? 5 : 1); // contaminate the tile
-            else if (tiles[se] === 0)
-            {
-                if (mode === 0)
-                    return true;
-                set_cell(se, current_player ? 6 : 2);
-            }
-        }
-
-        return false;
-    }
-
-    function contaminate(id) {
-        var can_move = false,
-            red_can_move = false,
-            blue_can_move = false;
-
-        function claim_free(player) {
-            for (let i = 0; i < 64 && free_tiles > 0; i++)
-            {
-                if (tiles[i] === 0)
-                    set_tile(i, player ? 5 : 1);
-            }
-        }
-
-        look_around(id, 2); // contaminate center + adjacent tiles
-
-        if (red_tiles < 1)
-        {
-            claim_free(1);
+    grid.node.addEventListener("cell_click", e => {
+        if (grid.free_tiles < 1)
             return;
-        }
-        else if (blue_tiles < 1)
-        {
-            claim_free(0);
-            return;
-        }
 
-        for (let i = 0; i < 64 && (!red_can_move || !blue_can_move); i++)
-        {
-            if (tiles[i] === 1 || tiles[i] === 5)
-            {
-                can_move = look_around(i); // check if this pawn can move
-                if (can_move === true && tiles[i] === 1)
-                    red_can_move = true;
-                else if (can_move === true && tiles[i] === 5)
-                    blue_can_move = true;
-            }
-        }
+        let tile = grid.tiles[e.detail],
+            contaminate = () => {
+                let can_move = false,
+                    red_can_move = false,
+                    blue_can_move = false,
+                    claim_free = p => {
+                        grid.tiles.forEach(t => {
+                            if (t.value === 0)
+                                t.value = p ? 5 : 1;
+                        })
+                    };
 
-        if (red_can_move === false)
-        {
-            claim_free(1);
-            return;
-        }
-        else if (blue_can_move === false)
-        {
-            claim_free(0);
-            return;
-        }
-    }
+                tile.value = (current_player ? 5 : 1); // contaminate center
+                tile.neighbors[1].forEach(t => { if (t.value === (current_player ? 1 : 5)) t.value = (current_player ? 5 : 1) }); // contaminate adjacent tiles
 
-    function cell_click(e) {
-        if (!("id" in e.target.dataset) || free_tiles < 1)
-            return; // not a cell
+                if (grid.red_tiles < 1)
+                {
+                    claim_free(1);
+                    return;
+                }
+                else if (grid.blue_tiles < 1)
+                {
+                    claim_free(0);
+                    return;
+                }
 
-        if (right_click_id >= 0)
-        {
-            right_click_id = -1;
-            $(".menu").style.display = "none";
-            return;
-        }
+                grid.tiles.forEach(t => {
+                    if (red_can_move && blue_can_move)
+                        return;
 
-        var id = parseInt(e.target.dataset.id, 10),
-            state = parseInt(e.target.className.charAt(2), 10);
+                    if (t.value === 1 || t.value === 5)
+                    {
+                        can_move = [...t.neighbors[0], ...t.neighbors[1]].some(r => r.value === 0);
 
-        if (active_tile >= 0 && active_tile !== id && state !== (current_player ? 6 : 2) && state !== (current_player ? 7 : 3))
-        {
-            apply_tiles();
-        }
+                        if (can_move === true && t.value === 1)
+                            red_can_move = true;
+                        else if (can_move === true && t.value === 5)
+                            blue_can_move = true;
+                    }
+                });
 
-        switch (state)
+                if (red_can_move === false)
+                {
+                    claim_free(1);
+                }
+                else if (blue_can_move === false)
+                {
+                    claim_free(0);
+                }
+            };
+
+
+        if (right_click_tile !== null)
+            right_click_tile = null;
+
+        if (grid.active !== null && tile !== grid.active && tile.color !== (current_player ? 6 : 2) && tile.color !== (current_player ? 7 : 3))
+            grid.apply(); // implicitely removes active
+
+        switch (tile.color)
         {
             case 1:
             case 2:
@@ -307,256 +400,94 @@
             default: return;
         }
 
-        if (active_tile >= 0)
+        if (grid.active !== null)
         {
-            if (id !== active_tile && (state === 3 || state === 7))
+            if (tile !== grid.active && [2,3,6,7].includes(tile.color))
             {
-                // click remote tile
-                move_history.undo.push(Array.from(tiles)); // log previous state so we can undo
-                $(".undo").disabled = false; // we can undo
-                move_history.redo = []; // empty redo
-                $(".redo").disabled = true; // we can't redo
+                redo_history.length = 0; // empty redo history
+                undo_history.push(Uint8Array.from(grid.tiles.map(t => t.value))); // push to undo history
 
-                set_tile(active_tile, 0); // remove from origin
-                contaminate(id); // contaminate around new pawn
-                apply_tiles(); // apply the changes
-                next_turn(); // switch player
+                if (tile.color === 3 || tile.color === 7)
+                    grid.active.value = 0; // remove from origin
+
+                contaminate();
+
+                current_player ^= 1; // switch player, calculate tiles
+            }
+
+            grid.apply();
+
+            if (tile.color !== 1 || tile.color !== 5)
                 return;
-            }
-            else if (id !== active_tile && (state === 2 || state === 6))
-            {
-                // click adjacent tile
-                move_history.undo.push(Array.from(tiles)); // log previous state so we can undo
-                $(".undo").disabled = false; // we can undo
-                move_history.redo = []; // empty redo
-                $(".redo").disabled = true; // we can't redo
-
-                contaminate(id); // contaminate around new pawn
-                apply_tiles(); // apply the changes
-                next_turn(); // switch player
-                return;
-            }
-            else if (id === active_tile)
-            {
-                // click same tile
-                apply_tiles(); // reset board
-                return;
-            }
-            else
-            {
-                // click other usable pawn
-                apply_tiles(); // reset board
-            }
         }
 
-        active_tile = id;
-        e.target.className += " active";
-        look_around(id, 1);
-    }
+        if (tile.value !== 1 && tile.value !== 5)
+            return;
 
-    function next_turn(real = true) {
-        if (real)
-            current_player = current_player ? 0 : 1;
-        $(".grid").classList.add("p" + current_player);
-        $(".grid").classList.remove("p" + (current_player ? 0 : 1));
-        $(".info .player").innerText = "(none)";
-        $(".info .score.blue").innerText = blue_tiles;
-        $(".info .score.red").innerText = red_tiles;
+        grid.active = tile;
+        tile.neighbors[0].forEach(n => { if(n.value === 0) n.color = (current_player ? 7 : 3) });
+        tile.neighbors[1].forEach(n => { if(n.value === 0) n.color = (current_player ? 6 : 2) });
+    }, false);
 
-        history.replaceState({}, document.title, "#" + tiles.join(""));
-        $(".perma").href = document.location.href;
+    grid.node.addEventListener("cell_rclick", e => right_click_tile = e, false);
 
-        if (free_tiles < 1)
+    $(".menu").addEventListener("click", e => {
+        if ("v" in e.target.dataset && right_click_tile !== null)
         {
-            $(".grid").className = "grid";
-            $(".switch").disabled = true;
-            $(".layout").classList.add("endgame");
-
-            if (red_tiles > blue_tiles)
-                $(".info .status").innerText = "red wins";
-            else if (blue_tiles > red_tiles)
-                $(".info .status").innerText = "blue wins";
-            else
-                $(".info .status").innerText = "draw";
-        }
-        else
-        {
-            $(".info .status").innerText = "game in progress";
-            $(".info .player").innerText = current_player ? "blue" : "red";
-            $(".switch").disabled = false;
-            $(".layout").classList.remove("endgame");
-        }
-    }
-
-    function new_game(layout = Math.floor(Math.random()*layouts.length),
-                        player = Math.round(Math.random())) {
-        let i = 0;
-        if (typeof layout === "number")
-            layout = layouts[layout];
-        for (let tile of Uint8Array.from(layout))
-        {
-            set_tile(i, tile);
-            i++;
+            right_click_tile.value = parseInt(e.target.dataset.v, 10);
+            right_click_tile.color = right_click_tile.value;
+            current_player |= 0; // just to calculate tiles
         }
 
-        current_player = player ? 1 : 0;
-        apply_tiles(); // initial apply
-        next_turn();
-        move_history.undo = []; // empty the history
-        move_history.redo = []; // empty the history
-        $(".undo").disabled = true; // we can't undo
-        $(".redo").disabled = true; // we can't redo
-    }
+        right_click_tile = null;
+    }, false);
 
-    function new_click() {
-        let layout = parseInt($(".layout > select").value, 10);
+    document.addEventListener("click", e => {
+        if (right_click_tile !== null && !e.path.includes($(".menu")))
+            right_click_tile = null;
+
+        if (grid.active !== null && !e.path.includes($(".grid table")))
+            grid.apply();
+    }, false);
+
+    $(".switch").addEventListener("click", () => current_player ^= 1, false);
+
+    $(".undo").addEventListener("click", () => {
+        if (undo_history.length < 1)
+            return;
+
+        redo_history.push(Uint8Array.from(grid.tiles.map(t => t.value))); // push to redo history
+        undo_history.pop().forEach((v, k) => grid.tiles[k].value = v);
+        grid.apply();
+        current_player ^= 1;
+
+    }, false);
+
+    $(".redo").addEventListener("click", () => {
+        if (redo_history.length < 1)
+            return;
+
+        undo_history.push(Uint8Array.from(grid.tiles.map(t => t.value))); // push to undo history
+        redo_history.pop().forEach((v, k) => grid.tiles[k].value = v);
+        grid.apply();
+        current_player ^= 1;
+
+    }, false);
+
+    $(".layout > button").addEventListener("click", () => {
+        let layout = $(".layout > select").selectedIndex - 1;
         if (layout < 0)
             new_game();
         else
             new_game(layout);
-    }
+    }, false);
 
-    function right_click(e) {
-        if (!("id" in e.target.dataset))
-            return; // not a cell
-        e.preventDefault();
-        e.stopPropagation();
+    self.addEventListener("hashchange", e => {
+        if (e.isTrusted && (new RegExp("^#[0145]{"+ grid.num_tiles +"}[01]{1}$")).test(document.location.hash))
+            new_game(document.location.hash.slice(1, -1), document.location.hash.slice(-1));
+    }, false);
 
-        right_click_id = parseInt(e.target.dataset.id, 10);
-        $(".menu").style.left = e.clientX + "px";
-        $(".menu").style.top = e.clientY + "px";
-        $(".menu").style.display = "block";
-        if (active_tile >= 0)
-            apply_tiles();
-    }
-
-    function mod_click(e) {
-        if ("v" in e.target.dataset && right_click_id >= 0)
-        {
-            set_tile(right_click_id, parseInt(e.target.dataset.v, 10));
-            apply_tiles();
-            next_turn(false); // just to count stuff
-        }
-
-        right_click_id = -1;
-        $(".menu").style.display = "none";
-    }
-
-    function undo_click() {
-        if (move_history.undo.length < 1)
-            return;
-
-        move_history.redo.push(Array.from(tiles)); // log so we can redo
-        $(".redo").disabled = false; // we can redo
-
-
-        let i = 0;
-        for (let tile of move_history.undo.pop())
-        {
-            set_tile(i, tile);
-            i++;
-        }
-
-        if (move_history.undo.length < 1)
-            $(".undo").disabled = true; // we can't undo
-
-        apply_tiles();
-        next_turn();
-    }
-
-    function redo_click() {
-        if (move_history.redo.length < 1)
-            return;
-
-        move_history.undo.push(Array.from(tiles)); // log so we can undo
-        $(".undo").disabled = false; // we can undo
-
-
-        let i = 0;
-        for (let tile of move_history.redo.pop())
-        {
-            set_tile(i, tile);
-            i++;
-        }
-
-        if (move_history.redo.length < 1)
-            $(".redo").disabled = true; // we can't redo
-
-        apply_tiles();
-        next_turn();
-    }
-
-    function switch_click() {
-        if (free_tiles < 1)
-            return;
-        apply_tiles(); // to remove highlight
-        next_turn();
-    }
-
-    function save_click(slot) {
-        if (typeof slot !== "number")
-            slot = parseInt($(".save > select").value, 10);
-
-        if (slot < 1)
-            return;
-
-        $(".save > select").value = 0;
-
-        savestate[slot - 1] = {
-            v: 1,
-            tiles: Array.from(tiles),
-            history: [
-                Array.from(move_history.undo),
-                Array.from(move_history.redo)
-            ], player: current_player
-        };
-
-        localStorage.setItem("savestate", JSON.stringify(savestate));
-        $(".status").innerText = "saved to slot " + slot;
-    }
-
-    function load_click(slot) {
-        if (typeof slot !== "number")
-            slot = parseInt($(".load > select").value, 10);
-
-        if (slot < 1)
-            return;
-
-        $(".load > select").value = 0;
-
-        if (!((slot - 1) in savestate) || savestate[slot - 1] === null)
-        {
-            $(".status").innerText = "slot " + slot + " is empty";
-            return;
-        }
-
-        if (savestate[slot - 1].v !== 1)
-        {
-            $(".status").innerText = "incompatible version";
-            return;
-        }
-
-        let i = 0;
-        for (let tile of savestate[slot - 1].tiles)
-        {
-            set_tile(i, tile);
-            i++;
-        }
-
-        current_player = savestate[slot - 1].player;
-        move_history.undo = Array.from(savestate[slot - 1].history[0]);
-        move_history.redo = Array.from(savestate[slot - 1].history[1]);
-
-        $(".undo").disabled = move_history.undo.length > 0 ? false : true;
-        $(".redo").disabled = move_history.redo.length > 0 ? false : true;
-
-        apply_tiles();
-        next_turn(false);
-
-        $(".status").innerText = "loaded slot " + slot;
-    }
-
-    function perma_click(e) {
+    $(".perma").addEventListener("click", e => {
         let success = false,
             range = document.createRange(),
             before = $(".status").innerText;
@@ -564,28 +495,30 @@
         e.preventDefault();
         e.stopPropagation();
 
-        window.getSelection().removeAllRanges(); // remove any leftovers
+        self.getSelection().removeAllRanges(); // remove any leftovers
         $(".status").innerText = document.location.href; // change status to the url
 
         try {
             range.selectNode($(".status")); // add status to the range
-            window.getSelection().addRange(range); // make the browser select the range
+            self.getSelection().addRange(range); // make the browser select the range
             success = document.execCommand('copy');
         } catch(r) {
             success = false;
         }
 
-        window.getSelection().removeAllRanges(); // unselect
+        self.getSelection().removeAllRanges(); // unselect
 
         if (success)
             $(".status").innerText = "copied to clipboard";
         else
             $(".status").innerText = before;
-    }
+    }, false);
 
-    function key_press(e) {
+    $(".save > select").addEventListener("change", save_click, false);
+    $(".load > select").addEventListener("change", load_click, false);
+
+    document.addEventListener("keyup", e => {
         let num = 0;
-
         if (e.isTrusted && (num = /^(?:Digit|Numpad)(\d)$/.exec(e.code)) !== null)
         {
             num = parseInt(num[1], 10);
@@ -601,63 +534,46 @@
                     load_click(num);
             }
         }
-    }
+    }, false);
 
-    function hash_change(e) {
-        if (e.isTrusted && /^#[0145]{64}$/g.test(document.location.hash))
-            new_game(document.location.hash.slice(1));
-    }
 
-// ON INIT
 
-    // build table
-    (function create_table(){
-        var e = 0,
-            tbl  = document.createElement("table");
-        for(let i = 0; i < 8; i++){
-            let tr = tbl.insertRow();
-            for(let j = 0; j < 8; j++){
-                let td = tr.insertCell();
-                td.dataset.id = e++;
-            }
-        }
-        tbl.addEventListener("click", cell_click, false);
-        tbl.addEventListener("contextmenu", right_click, false);
-        $(".grid").appendChild(tbl);
-    })();
 
-    cells = $$(".grid > table td");
+    layouts.forEach(layout => {
+        let l = document.createElement("option");
+        l.innerText = layout[0];
+        $(".layout > select").appendChild(l);
+    });
 
-    $(".switch").addEventListener("click", switch_click, false);
-    $(".perma").addEventListener("click", perma_click, false);
-    $(".layout > button").addEventListener("click", new_click, false);
-    $(".save > select").addEventListener("change", save_click, false);
-    $(".load > select").addEventListener("change", load_click, false);
-    $(".undo").addEventListener("click", undo_click, false);
-    $(".redo").addEventListener("click", redo_click, false);
-    $(".menu").addEventListener("click", mod_click, false);
-    window.addEventListener("hashchange", hash_change, false);
-    document.addEventListener("keyup", key_press, false);
-
-    if (/^#[0145]{64}$/g.test(document.location.hash))
-        new_game(document.location.hash.slice(1));
+    if ((new RegExp("^#[0145]{"+ grid.num_tiles +"}[01]{1}$")).test(document.location.hash))
+        new_game(document.location.hash.slice(1, -1), document.location.hash.slice(-1));
     else
         new_game();
 
     if ("savestate" in localStorage)
-        savestate = JSON.parse(localStorage.getItem("savestate"));
+    {
+        savestate.length = 0; // forcefully empty it
+        JSON.parse(localStorage.getItem("savestate")).forEach(s => savestate.push(s));
+        if (savestate.length < 1 || typeof savestate[0] !== "number" || savestate[0] < 2)
+        {
+            console.warn("Dropping empty or invalid savestate", Array.from(savestate));
+            savestate.length = 0; // forcefully empty it
+            savestate.push(2); // push version
+        }
+    }
 
-    // register the service worker
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker
             .register("service-worker.js")
-            .then(function(){
-                console.info("Service Worker Registered");
+            .then(() => {
+                console.log("Service Worker Registered");
                 $(".online").innerText = "Available offline";
                 $(".online").className = "offline";
             })
-            .catch(function(){ console.warn("Service Worker Unavailable"); });
+            .catch(() => console.warn("Service Worker Unavailable"));
     }
     else
-        console.warn("Navigator does not support Service Workers.");
+        console.warn("Navigator does not support Service Workers");
+
+    console.info("🥚 %cThis application does not contain easter eggs", "font-weight:bolder;font-size:1.2em");
 })();

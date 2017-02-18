@@ -19,8 +19,8 @@ pages:
     # compile the javascript files with Google Closure
     - sed -i 's/src="app.js"/src="app.min.js"/' index.html
     - sed -i 's/"service-worker.js"/"service-worker.min.js"/' app.js
-    - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js app.js --create_source_map public/app.js.map --js_output_file public/app.min.js
-    - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js service-worker.js --create_source_map public/service-worker.js.map --js_output_file public/service-worker.min.js
+    - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --language_in ES7 --language_out ES5_STRICT --js app.js --create_source_map public/app.js.map --js_output_file public/app.min.js
+    - java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --language_in ES7 --language_out ES5_STRICT --js service-worker.js --create_source_map public/service-worker.js.map --js_output_file public/service-worker.min.js
     - echo "//# sourceMappingURL=app.js.map" >> public/app.min.js
     - echo -n "//# sourceURL=app.js" >> public/app.min.js
     - echo "//# sourceMappingURL=service-worker.js.map" >> public/service-worker.min.js
