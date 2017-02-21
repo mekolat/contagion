@@ -8,19 +8,29 @@ pages:
     - master
   script:
     - apt-get -qq update
-    - apt-get install -qq -y imagemagick
-    - sed -i "s/{{git-rev}}/${CI_BUILD_REF:0:7}/" service-worker.js
-    - sed -i "s/{{git-rev}}/${CI_BUILD_REF:0:7}/g" index.html
+    - apt-get install -qq -y imagemagick build-essential git
+    - sed -i "s/{{git-rev}}/$(git describe --tags --always)/" service-worker.js
+    - sed -i "s/{{git-rev}}/$(git describe --tags --always)/g" index.html
+    # download and compile Google Zopfli
+    - wget https://github.com/google/zopfli/archive/master.zip
+    - unzip -o *master.zip
+    - pushd zopfli*
+    - make zopflipng
+    - mv zopflipng ../
+    - popd
+    # download and prepare Google Closure
     - wget http://dl.google.com/closure-compiler/compiler-latest.zip
     - unzip -o compiler-latest.zip
     - mv closure*.jar compiler.jar
     - chmod u+x compiler.jar
+    # set up the environment
     - mkdir -p public
-    # compile the javascript files with Google Closure
     - sed -i 's/src="app.js"/src="app.min.js"/' index.html
     - sed -i 's/"service-worker.js"/"service-worker.min.js"/' app.js
+    # compile the javascript files with Google Closure
     - java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --language_in ES7 --language_out ES5_STRICT --js app.js --create_source_map public/app.js.map --js_output_file public/app.min.js
     - java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --language_in ES7 --language_out ES5_STRICT --js service-worker.js --create_source_map public/service-worker.js.map --js_output_file public/service-worker.min.js
+    # add our source map links
     - echo "//# sourceMappingURL=app.js.map" >> public/app.min.js
     - echo -n "//# sourceURL=app.js" >> public/app.min.js
     - echo "//# sourceMappingURL=service-worker.js.map" >> public/service-worker.min.js
@@ -42,6 +52,9 @@ pages:
     - convert -background none icons/base.svg -resize x256 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/256.png
     - convert -background none icons/base.svg -resize x310 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/310.png # microsoft
     - convert -background none icons/base.svg -resize x512 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/512.png # google
+    # compress everything with Google Zopfli
+    - ./zopflipng -ym --prefix=zopfli_ --lossy_8bit icons/*.png
+    - rename -f "s/zopfli_//" icons/*.png
     # convert base SVG into ico
     - convert -background none icons/base.svg -define icon:auto-resize=16,32,48 public/favicon.ico
     # move our assets in the public folder
