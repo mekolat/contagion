@@ -1,20 +1,16 @@
 "use strict";
 
-/** @define {string} */
-const REV = "{{git-rev}}";
+const REV: string = "{{git-rev}}";
 
-/** @const {!string} */
-const CACHE_NAME = "Contagion-" + REV;
+const CACHE_NAME: string = "Contagion-" + REV;
 
-/** @const {!Array<!string>} */
-const ESSENTIAL_FILES = [
+const ESSENTIAL_FILES: [string] = [
     "./",
-    "app.min.js",
+    "app.js",
     "default.css",
 ];
 
-/** @const {!Array<!string>} */
-const MISC_FILES = [
+const MISC_FILES: [string] = [
     "manifest.json",
     "license.html",
     "LICENSE",
@@ -22,10 +18,10 @@ const MISC_FILES = [
     "favicon.ico",
 ];
 
-self.addEventListener("install", e => {
+self.addEventListener("install", (e: Event & {waitUntil: any}) : void => {
     console.log("[Service Worker] Install");
     e.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
+        caches.open(CACHE_NAME).then((cache) : Promise<void> => {
             console.log("[Service Worker] Caching app", CACHE_NAME);
             cache.addAll(MISC_FILES); // cache non-essential files later
             return cache.addAll(ESSENTIAL_FILES); // cache essential files now
@@ -33,22 +29,24 @@ self.addEventListener("install", e => {
     );
 });
 
-self.addEventListener("activate", e => {
+self.addEventListener("activate", (e: Event & {waitUntil: any}) : void => {
     console.log("[Service Worker] Activate", CACHE_NAME);
     e.waitUntil(
-        caches.keys().then(keyList => {
+        caches.keys().then((keyList: Array<any>) => {
             return Promise.all(keyList.map(key => {
                 if (key !== CACHE_NAME) {
                     console.log("[Service Worker] Removing old cache", key);
                     return caches.delete(key);
                 }
+                return true;
             }));
         })
     );
-    return "clients" in self ? self.clients.claim() : false;
+    if ("clients" in self)
+        (<any>self).clients.claim();
 });
 
-self.addEventListener("fetch", e => {
+self.addEventListener("fetch", (e: Event & {respondWith: any, request: any}) => {
     console.log("[Service Worker] Fetch", e.request.url);
     e.respondWith(
         caches.match(e.request).then(response => {

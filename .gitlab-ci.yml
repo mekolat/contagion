@@ -2,14 +2,17 @@ stages:
   - deploy
 
 pages:
-  image: openjdk:jre
+  image: node:latest
   stage: deploy
   only:
     - master
   script:
+    # install stuff
     - apt-get -qq update
-    - apt-get install -qq -y imagemagick build-essential git
-    - sed -i "s/{{git-rev}}/$(git describe --tags --always)/" service-worker.js
+    - apt-get install -qq -y imagemagick build-essential git zip unzip
+    - npm install -g typescript
+    # update hardcoded git tags
+    - sed -i "s/{{git-rev}}/$(git describe --tags --always)/" service-worker.ts
     - sed -i "s/{{git-rev}}/$(git describe --tags --always)/g" index.html
     # download and compile Google Zopfli
     - wget https://github.com/google/zopfli/archive/master.zip
@@ -18,23 +21,10 @@ pages:
     - make zopflipng
     - mv zopflipng ../
     - popd
-    # download and prepare Google Closure
-    - wget http://dl.google.com/closure-compiler/compiler-latest.zip
-    - unzip -o compiler-latest.zip
-    - mv closure*.jar compiler.jar
-    - chmod u+x compiler.jar
     # set up the environment
     - mkdir -p public
-    - sed -i 's/src="app.js"/src="app.min.js"/' index.html
-    - sed -i 's/"service-worker.js"/"service-worker.min.js"/' app.js
-    # compile the javascript files with Google Closure
-    - java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --language_in ES7 --language_out ES5_STRICT --js app.js --create_source_map public/app.js.map --js_output_file public/app.min.js
-    - java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --language_in ES7 --language_out ES5_STRICT --js service-worker.js --create_source_map public/service-worker.js.map --js_output_file public/service-worker.min.js
-    # add our source map links
-    - echo "//# sourceMappingURL=app.js.map" >> public/app.min.js
-    - echo -n "//# sourceURL=app.js" >> public/app.min.js
-    - echo "//# sourceMappingURL=service-worker.js.map" >> public/service-worker.min.js
-    - echo -n "//# sourceURL=service-worker.js" >> public/service-worker.min.js
+    # build the scripts
+    - tsc
     # convert our base SVG into many PNG files
     - convert -background none icons/base.svg -resize x16 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/16.png # all
     - convert -background none icons/base.svg -resize x32 -define png:compression-filter=2 -define png:compression-level=9 -define png:compression-strategy=1 icons/32.png # apple
@@ -58,12 +48,12 @@ pages:
     # convert base SVG into ico
     - convert -background none icons/base.svg -define icon:auto-resize=16,32,48 public/favicon.ico
     # move our assets in the public folder
-    - mv index.html public/
-    - mv app.js public/
-    - mv service-worker.js public/
-    - mv license.html public/
+    - mv *.html public/
+    - mv *.js public/
+    - mv *.ts public/
+    - mv *.map public/
     - mv LICENSE public/
-    - mv default.css public/
+    - mv *.css public/
     - mv manifest.json public/
     - mv browserconfig.xml public/
     - mv icons public/

@@ -1,38 +1,45 @@
 "use strict";
 
+enum TileColor {Empty, Red, RedNeighbor, RedRemote, Blocked, Blue, BlueNeighbor, BlueRemote};
+enum TileValue {Empty = TileColor.Empty, Red = TileColor.Red, Blocked = TileColor.Blocked, Blue = TileColor.Blue};
+enum Player {Red, Blue};
+
 class Grid {
-    /**
-     * @param {Element} node
-     * @param {number} size
-     */
-    constructor(node, size=8) {
-        /** @const {number} */ this.size = size; // board size (size * size)
-        /** @const {number} */ this.num_tiles = size * size; // total number of tiles
-        /** @const {Element} */ this.node = node; // the grid node
-        /** @type {number} */ this.free_tiles = this.num_tiles; // number of free tiles
-        /** @type {number} */ this.red_tiles = 0; // number of red tiles
-        /** @type {number} */ this.blue_tiles = 0; // number of blue tiles
-        /** @const {!Array<Tile>} */ this.tiles = new Array(this.num_tiles); // array containing all Tile()
-        /** @private {Tile} */ this._active = null; // the highlighted tile
+
+    public size: number;
+    public num_tiles: number;
+    public node: HTMLElement;
+    public free_tiles: number;
+    public red_tiles: number;
+    public blue_tiles: number;
+    public tiles: Array<Tile>;
+    public _tbl: HTMLTableElement;
+
+    private _active: Tile;
+
+    constructor(node: HTMLElement, size: number = 8) {
+        this.size = size; // board size (size * size)
+        this.num_tiles = size * size; // total number of tiles
+        this.node = node; // the grid node
+        this.free_tiles = this.num_tiles; // number of free tiles
+        this.red_tiles = 0; // number of red tiles
+        this.blue_tiles = 0; // number of blue tiles
+        this.tiles = new Array(this.num_tiles); // array containing all Tile()
+        this._active = null; // the highlighted tile
         this._makeTable();
     }
 
-    apply() {
-        this.tiles.forEach(tile => tile.color = tile.value);
+    apply() : void {
+        this.tiles.forEach((tile: Tile) => tile.color = <number>tile.value);
         this.active = null;
+        return;
     }
 
-    /**
-     * @return {Tile}
-     */
-    get active() {
+    get active() : Tile {
         return this._active;
     }
 
-    /**
-     * @param {Tile} t
-     */
-    set active(t) {
+    set active(t: Tile) {
         if (this._active !== null)
             this._active.node.classList.remove("active");
 
@@ -44,101 +51,89 @@ class Grid {
 
         this._active = this.tiles[t.id];
         this._active.node.classList.add("active");
+        return;
     }
 
-    /**
-     * @private
-     */
-    _makeTable() {
-        /** @type {!number} */ let i = 0;
-        /** @type {!number} */ let j = 0;
-        /** @type {!number} */ let e = 0;
+    private _makeTable() : void {
+        let i: number = 0;
+        let j: number = 0;
+        let e: number = 0;
 
-        /** @const {!Element} */
-        const tbl  = document.createElement("table");
+        this._tbl = document.createElement("table");
 
         for(; i < this.size; i++){
-            /** @const {!Element} */ const tr = tbl.insertRow();
+            const tr: HTMLTableRowElement = this._tbl.insertRow();
             for(j = 0; j < this.size; j++){
                 this.tiles[e] = new Tile(this, e++, tr);
             }
         }
-        this.tiles.forEach(tile => tile._findNeighbors());
-        this.node.appendChild(tbl);
+        this.tiles.forEach((tile: Tile) : void => tile._findNeighbors());
+        this.node.appendChild(this._tbl);
+        return;
     }
 }
 
 class Tile {
-    /**
-     * @param {!Grid} parent
-     * @param {!number} id
-     * @param {!Element} tr
-     */
-    constructor(parent, id, tr) {
-        /** @const {!number} */ this.id = id;
-        /** @const {!Grid} */ this.parent = parent; // grid
-        /** @const {!number} */ this.rpos = id % this.parent.size; // position in row
-        /** @const {!number} */ this.cpos = Math.floor(id / this.parent.size); // position in column
-        /** @const {!Element} */ this.node = tr.insertCell(); // DOM element
-        /** @const {!Array<!Set<Tile>, !Set<Tile>>} */ this.neighbors = [new Set(), new Set()];
-        /** @private {!number} */ this._color = 0; // highlight color
-        /** @private {!number} */ this._value = 0; // actual value
+
+    public id: number;
+    public parent: Grid;
+    public rpos: number;
+    public cpos: number;
+    public node: HTMLTableCellElement;
+    public neighbors: [Set<Tile>, Set<Tile>];
+
+    private _color: TileColor;
+    private _value: TileValue;
+
+    constructor(parent: Grid, id: number, tr: HTMLTableRowElement) {
+        this.id = id;
+        this.parent = parent; // grid
+        this.rpos = id % this.parent.size; // position in row
+        this.cpos = Math.floor(id / this.parent.size); // position in column
+        this.node = tr.insertCell(); // DOM element
+        this.neighbors = [new Set(), new Set()];
+        this._color = 0; // highlight color
+        this._value = 0; // actual value
 
         this.node.addEventListener("click", () => this.parent.node.dispatchEvent(new CustomEvent("cell_click", {detail: this.id})), false);
-        this.node.addEventListener("contextmenu", e => this.parent.node.dispatchEvent(new CustomEvent("cell_rclick", {detail: [e, this.id]})), false);
+        this.node.addEventListener("contextmenu", (e: MouseEvent) => this.parent.node.dispatchEvent(new CustomEvent("cell_rclick", {detail: [e, this.id]})), false);
     }
 
-    /**
-     * @return {!number}
-     */
-    get color() {
+    get color() : TileColor {
         return this._color;
     }
 
-    /**
-     * @param {!number} c
-     */
-    set color(c) {
-        c = Math.max(0, Math.min(c, 7));
+    set color(c: TileColor) {
         if (this._color !== c)
         {
             this.node.className = "c_" + c;
             this._color = c;
         }
+        return;
     }
 
-    /**
-     * @return {!number}
-     */
-    get value() {
+    get value() : TileValue {
         return this._value;
     }
 
-    /**
-     * @param {!number} v
-     */
-    set value(v) {
-        v = Math.max(0, Math.min(v, 7));
-
+    set value(v: TileValue) {
         switch (this.value) {
             case v: return; // don't do anything
-            case 1: this.parent.red_tiles--; break;
-            case 5: this.parent.blue_tiles--; break;
-            case 0: this.parent.free_tiles--;
+            case TileValue.Red: this.parent.red_tiles--; break;
+            case TileValue.Blue: this.parent.blue_tiles--; break;
+            case TileValue.Empty: this.parent.free_tiles--;
         }
 
         switch (v) {
-            case 1: this.parent.red_tiles++; break;
-            case 5: this.parent.blue_tiles++; break;
-            case 0: this.parent.free_tiles++;
+            case TileValue.Red: this.parent.red_tiles++; break;
+            case TileValue.Blue: this.parent.blue_tiles++; break;
+            case TileValue.Empty: this.parent.free_tiles++;
         }
 
         this._value = v;
+        return;
     }
 
-    /**
-     * @private
-     */
     _findNeighbors() {
         // remotes
         if (this.id - (this.parent.size * 2) >= 0)
@@ -174,8 +169,7 @@ class Tile {
 
 
 
-/** @const {!Map<!string, !Element>} */
-const nodes = new Map();
+const nodes: Map<string, HTMLElement> = new Map();
 
 Object.entries({
     "grid":       ".grid",
@@ -194,19 +188,17 @@ Object.entries({
     "pick":       ".layout > select",
     "new":        ".layout > button",
     "caching":    ".online",
-}).forEach(v => {
-    /** @type {Element} */ let node = document.querySelector(v[1]);
+}).forEach((v: [string, string]) => {
+    let node: HTMLElement = <HTMLElement>document.querySelector(v[1]);
     if (node === null)
         throw new Error(`Node not found in document! => \`${v[1]}\``);
    nodes.set(v[0], node);
 });
 
 
-/** @const {!Grid} */
-const grid = new Grid(nodes.get("grid"));
+const grid: Grid = new Grid(nodes.get("grid"));
 
-/** @const {!Array<!Array<!string, !string>>} */
-const layouts = Object.entries({
+const layouts: Array<[string, string]> = Object.entries({
     "gumi 01": "1000000500000000000000000000000000000000000000000000000050000001",
     "gumi 02": "1400004544000044000000000000000000000000000000004400004414000045",
     "gumi 03": "1000000004400000040000000000000000000000000000400000044000000005",
@@ -237,61 +229,66 @@ const layouts = Object.entries({
     "Tirifto 08": "0050500405050000505004000500000150000010004001010000101040010100",
 });
 
-/** @private {!number} */ let _current_player = 0;
-/** @private {Tile} */ let _right_click_tile = null;
+let _current_player: Player = Player.Red;
+let _right_click_tile: Tile = null;
 
-/** @const {!Array<!Array<!Uint8Array>>} */
-const _move_history = [[], []]; // undo, redo
+const _move_history: [Array<ArrayLike<TileValue>>, Array<ArrayLike<TileValue>>] = [[], []]; // undo, redo
 
-/** @const {!Array<(number|Array<!(string|number|Array<!string>)>)>} */
-const savestate = [2];
+interface Savestate {
+    tiles: string,
+    undo: Array<string>,
+    redo: Array<string>,
+    player: Player
+}
 
-/** @const {!function(!(string|number)=, !number=)} */
-const new_game = (layout = Math.floor(Math.random()*layouts.length),
-                player = Math.round(Math.random())) => {
+const savestates: Array<Savestate> = [];
+
+const new_game = (layout: number|string = Math.floor(Math.random()*layouts.length),
+                player: Player = Math.round(Math.random())) : void => {
 
     if (typeof layout === "number")
         layout = layouts[layout][1];
 
-    layout.split("").forEach((v, k) => grid.tiles[k].value = +v);
+    layout.split("").forEach((v: string, k: number) : TileValue => grid.tiles[k].value = +v);
     grid.apply();
     undo_history.length = 0;
     redo_history.length = 0;
     current_player = +player;
 };
 
-/** @const {!function(!(number|Event))} */
-const save_click = slot => {
+const save_click = (slot: number|Event) => {
     if (typeof slot !== "number")
-        slot = nodes.get("save").selectedIndex;
+        slot = (<HTMLSelectElement>nodes.get("save")).selectedIndex;
 
     if (slot < 1)
         return;
 
-    nodes.get("save").selectedIndex = 0;
+    (<HTMLSelectElement>nodes.get("save")).selectedIndex = 0;
 
-    savestate[slot] = [
-        grid.tiles.map(t => t.value).join(""),
-        undo_history.map(t => t.join("")),
-        redo_history.map(t => t.join("")),
-        +current_player,
-    ];
+    savestates[slot - 1] = {
+        tiles: grid.tiles.map((t: Tile) => t.value).join(""),
+        undo: undo_history.map((t: ArrayLike<TileValue>) => Array.prototype.join.call(t, "")),
+        redo: redo_history.map((t: ArrayLike<TileValue>) => Array.prototype.join.call(t, "")),
+        player: +current_player,
+    };
 
-    localStorage.setItem("savestate", JSON.stringify(savestate));
+    const compressed: Array<number|Array<string|Array<string>>> = savestates.map((t: Savestate): Array<string|Array<string>> => Object.values(t));
+    compressed.unshift(2); // formatting version
+
+    localStorage.setItem("savestate", JSON.stringify(compressed));
     nodes.get("status").innerText = "saved to slot " + slot;
 };
 
-/** @const {!function(!(number|Event))} */
-const load_click = slot => {
+const load_click = (slot: number|Event) => {
     if (typeof slot !== "number")
-        slot = nodes.get("load").selectedIndex;
+        slot = (<HTMLSelectElement>nodes.get("load")).selectedIndex;
 
     if (slot < 1)
         return;
 
-    nodes.get("load").selectedIndex = 0;
+    (<HTMLSelectElement>nodes.get("load")).selectedIndex = 0;
 
-    if (!(slot in savestate) || savestate[slot] === null)
+    if (!((slot - 1) in savestates) || savestates[slot - 1] === null)
     {
         nodes.get("status").innerText = "slot " + slot + " is empty";
         return;
@@ -299,48 +296,51 @@ const load_click = slot => {
 
     undo_history.length = 0;
     redo_history.length = 0;
-    savestate[slot][0].split("").forEach((v, k) => grid.tiles[k].value = +v);
-    savestate[slot][1].forEach(v => undo_history.push(Uint8Array.from(v)));
-    savestate[slot][2].forEach(v => redo_history.push(Uint8Array.from(v)));
+
+    savestates[slot - 1].tiles.split("").forEach((v: string, k: number) => grid.tiles[k].value = <TileValue>+v);
+    savestates[slot - 1].undo.forEach((v: string) => undo_history.push(Uint8Array.from(v.split("").map((n: string) => +n))));
+    savestates[slot - 1].redo.forEach((v: string) => redo_history.push(Uint8Array.from(v.split("").map((n: string) => +n))));
 
     grid.apply();
-    current_player = +savestate[slot][3];
+    current_player = +savestates[slot - 1].player;
 
     nodes.get("status").innerText = "loaded slot " + slot;
 };
 
-const undo_history = new Proxy(_move_history[0], {
-    set: (target, name, value) => {
+const undo_history: Array<ArrayLike<TileValue>> = new Proxy(_move_history[0], {
+    set: (target: Array<ArrayLike<TileValue>>, name: number, value: ArrayLike<TileValue>) => {
         target[name] = value;
-        nodes.get("undo").disabled = (target.length < 1);
+        (<HTMLButtonElement>nodes.get("undo")).disabled = (target.length < 1);
         return true;
     }
 });
 
-const redo_history = new Proxy(_move_history[1], {
-    set: (target, name, value) => {
+const redo_history: Array<ArrayLike<TileValue>> = new Proxy(_move_history[1], {
+    set: (target: Array<ArrayLike<TileValue>>, name: number, value: ArrayLike<TileValue>) => {
         target[name] = value;
-        nodes.get("redo").disabled = (target.length < 1);
+        (<HTMLButtonElement>nodes.get("redo")).disabled = (target.length < 1);
         return true;
     }
 });
 
+
+declare let current_player: Player;
 Reflect.defineProperty(self, "current_player", {
     get: () => _current_player,
-    set: v => {
+    set: (v: Player) => {
         grid.node.classList.remove("p" + _current_player);
         grid.node.classList.add("p" + v);
         nodes.get("player").innerText = "(none)";
-        nodes.get("blue").innerText = grid.blue_tiles;
-        nodes.get("red").innerText = grid.red_tiles;
+        nodes.get("blue").innerText = String(grid.blue_tiles);
+        nodes.get("red").innerText = String(grid.red_tiles);
 
         history.replaceState({}, document.title, "#" + grid.tiles.map(t => t.value).join("") + v);
-        nodes.get("perma").href = document.location.href;
+        (<HTMLAnchorElement>nodes.get("perma")).href = document.location.href;
 
         if (grid.free_tiles < 1)
         {
             grid.node.className = "grid";
-            nodes.get("switch").disabled = true;
+            (<HTMLButtonElement>nodes.get("switch")).disabled = true;
             nodes.get("layout").classList.add("endgame");
 
             if (grid.red_tiles > grid.blue_tiles)
@@ -354,7 +354,7 @@ Reflect.defineProperty(self, "current_player", {
         {
             nodes.get("status").innerText = "game in progress";
             nodes.get("player").innerText = v ? "blue" : "red";
-            nodes.get("switch").disabled = false;
+            (<HTMLButtonElement>nodes.get("switch")).disabled = false;
             nodes.get("layout").classList.remove("endgame");
         }
 
@@ -362,28 +362,12 @@ Reflect.defineProperty(self, "current_player", {
     }
 });
 
+declare let right_click_tile: Tile;
 Reflect.defineProperty(self, "right_click_tile", {
     get: () => _right_click_tile,
-    set: v => {
-        if (v !== null)
-        {
-            v.detail[0].preventDefault();
-            v.detail[0].stopPropagation();
-            v.stopPropagation();
-
-            nodes.get("menu").style.left = v.detail[0].clientX + "px";
-            nodes.get("menu").style.top = v.detail[0].clientY + "px";
-            nodes.get("menu").style.display = "block";
-            v = grid.tiles[v.detail[1]];
-
-            if (grid.active !== null)
-                grid.apply();
-        }
-
-        else
-            nodes.get("menu").style.display = "none";
-
-        _right_click_tile = v;
+    set: (tile: Tile) => {
+        nodes.get("menu").style.display = "none";
+        _right_click_tile = tile;
     }
 });
 
@@ -392,47 +376,50 @@ Reflect.defineProperty(self, "easter_egg", {
 });
 
 
-grid.node.addEventListener("cell_click", e => {
+grid.node.addEventListener("cell_click", (e: Event & {detail: number}) => {
     if (grid.free_tiles < 1)
         return;
 
-    let tile = grid.tiles[e.detail],
+    let tile: Tile = grid.tiles[e.detail],
         contaminate = () => {
-            let can_move = false,
-                red_can_move = false,
-                blue_can_move = false,
-                claim_free = p => {
-                    grid.tiles.forEach(t => {
-                        if (t.value === 0)
-                            t.value = p ? 5 : 1;
+            let can_move: boolean = false,
+                red_can_move: boolean = false,
+                blue_can_move: boolean = false,
+                claim_free = (p: Player) => {
+                    grid.tiles.forEach((t: Tile) => {
+                        if (t.value === TileValue.Empty)
+                            t.value = (p == Player.Blue) ? TileValue.Blue : TileValue.Red;
                     })
                 };
 
-            tile.value = (current_player ? 5 : 1); // contaminate center
-            tile.neighbors[1].forEach(t => { if (t.value === (current_player ? 1 : 5)) t.value = (current_player ? 5 : 1) }); // contaminate adjacent tiles
+            tile.value = (current_player ? TileValue.Blue : TileValue.Red); // contaminate center
+            tile.neighbors[1].forEach((t: Tile) => {
+                if (t.value === (current_player ? TileValue.Red : TileValue.Blue))
+                    t.value = (current_player ? TileValue.Blue : TileValue.Red)
+            }); // contaminate adjacent tiles
 
             if (grid.red_tiles < 1)
             {
-                claim_free(1);
+                claim_free(Player.Blue);
                 return;
             }
             else if (grid.blue_tiles < 1)
             {
-                claim_free(0);
+                claim_free(Player.Red);
                 return;
             }
 
-            grid.tiles.forEach(t => {
+            grid.tiles.forEach((t: Tile) => {
                 if (red_can_move && blue_can_move)
                     return;
 
-                if (t.value === 1 || t.value === 5)
+                if (t.value === TileValue.Red || t.value === TileValue.Blue)
                 {
-                    can_move = [...t.neighbors[0], ...t.neighbors[1]].some(r => r.value === 0);
+                    can_move = [...t.neighbors[0], ...t.neighbors[1]].some((r: Tile) => r.value === TileValue.Empty);
 
-                    if (can_move === true && t.value === 1)
+                    if (can_move === true && t.value === TileValue.Red)
                         red_can_move = true;
-                    else if (can_move === true && t.value === 5)
+                    else if (can_move === true && t.value === TileValue.Blue)
                         blue_can_move = true;
                 }
             });
@@ -451,21 +438,21 @@ grid.node.addEventListener("cell_click", e => {
     if (right_click_tile !== null)
         right_click_tile = null;
 
-    if (grid.active !== null && tile !== grid.active && tile.color !== (current_player ? 6 : 2) && tile.color !== (current_player ? 7 : 3))
+    if (grid.active !== null && tile !== grid.active && tile.color !== (current_player ? TileColor.BlueNeighbor : TileColor.RedNeighbor) && tile.color !== (current_player ? TileColor.BlueRemote : TileColor.RedRemote))
         grid.apply(); // implicitely removes active
 
     switch (tile.color)
     {
-        case 1:
-        case 2:
-        case 3:
-            if (current_player !== 0)
+        case TileColor.Red:
+        case TileColor.RedNeighbor:
+        case TileColor.RedRemote:
+            if (current_player !== Player.Red)
                 return;
             break;
-        case 5:
-        case 6:
-        case 7:
-            if (current_player !== 1)
+        case TileColor.Blue:
+        case TileColor.BlueNeighbor:
+        case TileColor.BlueRemote:
+            if (current_player !== Player.Blue)
                 return;
             break;
         default: return;
@@ -473,13 +460,13 @@ grid.node.addEventListener("cell_click", e => {
 
     if (grid.active !== null)
     {
-        if (tile !== grid.active && [2,3,6,7].includes(tile.color))
+        if (tile !== grid.active && (<Array<TileColor>>[2,3,6,7]).includes(tile.color))
         {
             redo_history.length = 0; // empty redo history
             undo_history.push(Uint8Array.from(grid.tiles.map(t => t.value))); // push to undo history
 
-            if (tile.color === 3 || tile.color === 7)
-                grid.active.value = 0; // remove from origin
+            if (tile.color === TileColor.RedRemote || tile.color === TileColor.BlueRemote)
+                grid.active.value = TileValue.Empty; // remove from origin
 
             contaminate();
 
@@ -488,36 +475,48 @@ grid.node.addEventListener("cell_click", e => {
 
         grid.apply();
 
-        if (tile.color !== 1 || tile.color !== 5)
-            return;
+        return;
     }
 
-    if (tile.value !== 1 && tile.value !== 5)
+    if (tile.value !== TileValue.Red && tile.value !== TileValue.Blue)
         return;
 
     grid.active = tile;
-    tile.neighbors[0].forEach(n => { if(n.value === 0) n.color = (current_player ? 7 : 3) });
-    tile.neighbors[1].forEach(n => { if(n.value === 0) n.color = (current_player ? 6 : 2) });
+    tile.neighbors[0].forEach((n: Tile) => { if(n.value === TileValue.Empty) n.color = (current_player ? TileColor.BlueRemote : TileColor.RedRemote) });
+    tile.neighbors[1].forEach((n: Tile) => { if(n.value === TileValue.Empty) n.color = (current_player ? TileColor.BlueNeighbor : TileColor.RedNeighbor) });
 }, false);
 
-grid.node.addEventListener("cell_rclick", e => {right_click_tile = e; return}, false);
+grid.node.addEventListener("cell_rclick", (v: Event & {detail: [MouseEvent, number]}) => {
+    v.detail[0].preventDefault();
+    v.detail[0].stopPropagation();
+    v.stopPropagation();
 
-nodes.get("menu").addEventListener("click", e => {
-    if ("v" in e.target.dataset && right_click_tile !== null)
+    nodes.get("menu").style.left = v.detail[0].clientX + "px";
+    nodes.get("menu").style.top = v.detail[0].clientY + "px";
+    nodes.get("menu").style.display = "block";
+    right_click_tile = grid.tiles[v.detail[1]];
+
+    if (grid.active !== null)
+        grid.apply();
+}, false);
+
+nodes.get("menu").addEventListener("click", (e: Event) => {
+    if ("v" in (<HTMLElement>e.target).dataset && right_click_tile !== null)
     {
-        right_click_tile.value = parseInt(e.target.dataset["v"], 10);
-        right_click_tile.color = right_click_tile.value;
+        right_click_tile.value = parseInt((<HTMLElement>e.target).dataset["v"], 10);
+        right_click_tile.color = <number>right_click_tile.value;
         current_player |= 0; // just to calculate tiles
     }
 
     right_click_tile = null;
 }, false);
 
-document.addEventListener("click", e => {
-    if (right_click_tile !== null && !e.path.includes(nodes.get("menu")))
+document.addEventListener("click", (e: MouseEvent & {path: NodeList}) => {
+    // TODO: use Event.deepPath in the future
+    if (right_click_tile !== null && !Array.prototype.includes.call(e.path, nodes.get("menu")))
         right_click_tile = null;
 
-    if (grid.active !== null && !e.path.includes(nodes.get("grid")))
+    if (grid.active !== null && !Array.prototype.includes.call(e.path, grid._tbl))
         grid.apply();
 }, false);
 
@@ -528,7 +527,7 @@ nodes.get("undo").addEventListener("click", () => {
         return;
 
     redo_history.push(Uint8Array.from(grid.tiles.map(t => t.value))); // push to redo history
-    undo_history.pop().forEach((v, k) => grid.tiles[k].value = v);
+    Array.prototype.forEach.call(undo_history.pop(), (v: TileValue, k: number) => grid.tiles[k].value = v);
     grid.apply();
     current_player ^= 1;
 
@@ -539,14 +538,14 @@ nodes.get("redo").addEventListener("click", () => {
         return;
 
     undo_history.push(Uint8Array.from(grid.tiles.map(t => t.value))); // push to undo history
-    redo_history.pop().forEach((v, k) => grid.tiles[k].value = v);
+    Array.prototype.forEach.call(redo_history.pop(), (v: TileValue, k: number) => grid.tiles[k].value = v);
     grid.apply();
     current_player ^= 1;
 
 }, false);
 
 nodes.get("new").addEventListener("click", () => {
-    let layout = nodes.get("pick").selectedIndex - 1;
+    let layout = (<HTMLSelectElement>nodes.get("pick")).selectedIndex - 1;
     if (layout < 0)
         new_game();
     else
@@ -586,10 +585,10 @@ nodes.get("save").addEventListener("change", save_click, false);
 nodes.get("load").addEventListener("change", load_click, false);
 
 document.addEventListener("keyup", e => {
-    let num = 0;
-    if (e.isTrusted && (num = /^(?:Digit|Numpad)(\d)$/.exec(e.code)) !== null)
+    let reg: RegExpExecArray;
+    if (e.isTrusted && (reg = /^(?:Digit|Numpad)(\d)$/.exec(e.code)) !== null)
     {
-        num = parseInt(num[1], 10);
+        const num: number = parseInt(reg[1], 10);
 
         if (num < 1)
             new_game();
@@ -620,13 +619,24 @@ else
 
 if ("savestate" in localStorage)
 {
-    savestate.length = 0; // forcefully empty it
-    JSON.parse(localStorage.getItem("savestate")).forEach(s => savestate.push(s));
-    if (savestate.length < 1 || typeof savestate[0] !== "number" || savestate[0] < 2)
+    savestates.length = 0; // forcefully empty it
+    let tmpsav: Array<any> = JSON.parse(localStorage.getItem("savestate"));
+    let ver: number = tmpsav.shift();
+
+    tmpsav.forEach((s: [string, Array<string>, Array<string>, Player]) => {
+        savestates.push(s !== null ? <Savestate>{
+            tiles: s[0],
+            undo: s[1],
+            redo: s[2],
+            player: s[3]
+        } : null);
+    });
+
+    if (savestates.length < 1 || typeof ver !== "number" || ver !== 2)
     {
-        console.warn("Dropping empty or invalid savestate", Array.from(savestate));
-        savestate.length = 0; // forcefully empty it
-        savestate.push(2); // push version
+        console.warn("Dropping empty or invalid savestate", Array.from(tmpsav));
+        savestates.length = 0; // forcefully empty it
+        localStorage.removeItem("savestate");
     }
 }
 
