@@ -183,7 +183,7 @@ class CPU {
 
     public play_once(): boolean {
 
-        if (current_player != this.player || this.enabled != true)
+        if (current_player !== this.player || this.enabled !== true)
             return false;
 
         //TODO: LOCK THE GRID
@@ -193,17 +193,17 @@ class CPU {
         // for each tile
         this.grid.tiles.forEach((t: Tile) => {
             // check if we can use it
-            if ((this.player == Player.Red && t.value == TileValue.Red) ||
-                (this.player == Player.Blue && t.value == TileValue.Blue)) {
+            if ((this.player === Player.Red && t.value === TileValue.Red) ||
+                (this.player === Player.Blue && t.value === TileValue.Blue)) {
 
                 // neighbor
                 t.neighbors[1].forEach((n) => {
-                    if (n.value == TileValue.Empty) {
+                    if (n.value === TileValue.Empty) {
                         let pointsn: number = 1;
 
                         n.neighbors[1].forEach((o: Tile) => {
-                            if ((this.player == Player.Red && o.value == TileValue.Blue) ||
-                                (this.player == Player.Blue && o.value == TileValue.Red))
+                            if ((this.player === Player.Red && o.value === TileValue.Blue) ||
+                                (this.player === Player.Blue && o.value === TileValue.Red))
                                 pointsn++;
                         })
 
@@ -218,12 +218,12 @@ class CPU {
 
                 // remote
                 t.neighbors[0].forEach((r) => {
-                    if (r.value == TileValue.Empty) {
+                    if (r.value === TileValue.Empty) {
                         let pointsr: number = 0;
 
                         r.neighbors[1].forEach((y: Tile) => {
-                            if ((this.player == Player.Red && y.value == TileValue.Blue) ||
-                                (this.player == Player.Blue && y.value == TileValue.Red))
+                            if ((this.player === Player.Red && y.value === TileValue.Blue) ||
+                                (this.player === Player.Blue && y.value === TileValue.Red))
                                 pointsr++;
                         })
 
@@ -459,7 +459,8 @@ declare let right_click_tile: Tile;
 Reflect.defineProperty(self, "right_click_tile", {
     get: () => _right_click_tile,
     set: (tile: Tile) => {
-        nodes.get("menu").style.display = "none";
+        if (tile === null)
+            nodes.get("menu").style.display = "none";
         _right_click_tile = tile;
     }
 });
@@ -481,7 +482,7 @@ grid.node.addEventListener("cell_click", (e: Event & {detail: number}) => {
                 claim_free = (p: Player) => {
                     grid.tiles.forEach((t: Tile) => {
                         if (t.value === TileValue.Empty)
-                            t.value = (p == Player.Blue) ? TileValue.Blue : TileValue.Red;
+                            t.value = (p === Player.Blue) ? TileValue.Blue : TileValue.Red;
                     })
                 };
 
