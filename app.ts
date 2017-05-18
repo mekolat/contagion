@@ -3,6 +3,7 @@
 enum TileColor {Empty, Red, RedNeighbor, RedRemote, Blocked, Blue, BlueNeighbor, BlueRemote};
 enum TileValue {Empty = TileColor.Empty, Red = TileColor.Red, Blocked = TileColor.Blocked, Blue = TileColor.Blue};
 enum Player {Red, Blue};
+enum CPUMode {Dumb, Savvy};
 
 class Grid {
 
@@ -165,6 +166,94 @@ class Tile {
     }
 }
 
+class CPU {
+
+    public enabled: boolean;
+    public player: Player;
+    public mode: CPUMode = CPUMode.Dumb;
+
+    private grid: Grid;
+    private _delay: number; //unused
+
+    constructor(grid: Grid, player: Player = Player.Red, enabled: boolean = false) {
+        this.grid = grid;
+        this.player = player;
+        this.enabled = enabled;
+    }
+
+    public play_once(): boolean {
+
+        if (current_player != this.player || this.enabled != true)
+            return false;
+
+        //TODO: LOCK THE GRID
+
+        let best: [number, Array<[Tile, Tile]>] = [-1, []]; // origin, destination, points
+
+        // for each tile
+        this.grid.tiles.forEach((t: Tile) => {
+            // check if we can use it
+            if ((this.player == Player.Red && t.value == TileValue.Red) ||
+                (this.player == Player.Blue && t.value == TileValue.Blue)) {
+
+                // neighbor
+                t.neighbors[1].forEach((n) => {
+                    if (n.value == TileValue.Empty) {
+                        let pointsn: number = 1;
+
+                        n.neighbors[1].forEach((o: Tile) => {
+                            if ((this.player == Player.Red && o.value == TileValue.Blue) ||
+                                (this.player == Player.Blue && o.value == TileValue.Red))
+                                pointsn++;
+                        })
+
+                        if (pointsn > best[0]) {
+                            best[0] = pointsn;
+                            best[1] = [[t, n]];
+                        } else if (pointsn === best[0]) {
+                            best[1].push([t, n]);
+                        }
+                    }
+                });
+
+                // remote
+                t.neighbors[0].forEach((r) => {
+                    if (r.value == TileValue.Empty) {
+                        let pointsr: number = 0;
+
+                        r.neighbors[1].forEach((y: Tile) => {
+                            if ((this.player == Player.Red && y.value == TileValue.Blue) ||
+                                (this.player == Player.Blue && y.value == TileValue.Red))
+                                pointsr++;
+                        })
+
+                        if (pointsr > best[0]) {
+                            best[0] = pointsr;
+                            best[1] = [[t, r]];
+                        } else if (pointsr === best[0]) {
+                            best[1].push([t, r]);
+                        }
+                    }
+                });
+
+                // TODO: DRY this shit ^
+            }
+        });
+
+        if (best[1].length < 1) {
+            return false;
+        }
+
+        let move = Math.floor(Math.random() * best[1].length);
+
+        best[1][move][0].neighbors[0].forEach((n: Tile) => { if(n.value === TileValue.Empty) n.color = (this.player ? TileColor.BlueRemote : TileColor.RedRemote) });
+        best[1][move][0].neighbors[1].forEach((n: Tile) => { if(n.value === TileValue.Empty) n.color = (this.player ? TileColor.BlueNeighbor : TileColor.RedNeighbor) });
+        this.grid.active = best[1][move][0];
+        this.grid.node.dispatchEvent(new CustomEvent("cell_click", {detail: best[1][move][1].id}));
+        return true;
+    }
+}
+
 
 
 
@@ -188,6 +277,7 @@ Object.entries({
     "pick":       ".layout > select",
     "new":        ".layout > button",
     "caching":    ".online",
+    "cpu":        ".cpu > label > input",
 }).forEach((v: [string, string]) => {
     let node: HTMLElement = <HTMLElement>document.querySelector(v[1]);
     if (node === null)
@@ -231,6 +321,7 @@ const layouts: Array<[string, string]> = Object.entries({
 
 let _current_player: Player = Player.Red;
 let _right_click_tile: Tile = null;
+let cpu: CPU = new CPU(grid);
 
 const _move_history: [Array<ArrayLike<TileValue>>, Array<ArrayLike<TileValue>>] = [[], []]; // undo, redo
 
@@ -254,6 +345,8 @@ const new_game = (layout: number|string = Math.floor(Math.random()*layouts.lengt
     undo_history.length = 0;
     redo_history.length = 0;
     current_player = +player;
+
+    cpu.player = current_player ^ 1;
 };
 
 const save_click = (slot: number|Event) => {
@@ -471,6 +564,9 @@ grid.node.addEventListener("cell_click", (e: Event & {detail: number}) => {
             contaminate();
 
             current_player ^= 1; // switch player, calculate tiles
+
+            if (cpu.play_once() === true)
+                return;
         }
 
         grid.apply();
@@ -580,6 +676,10 @@ nodes.get("perma").addEventListener("click", e => {
 
     nodes.get("status").innerText = success ? "copied to clipboard" : before;
 }, false);
+
+nodes.get("cpu").addEventListener("click", e => {
+    cpu.enabled = (<HTMLInputElement>e.target).checked;
+});
 
 nodes.get("save").addEventListener("change", save_click, false);
 nodes.get("load").addEventListener("change", load_click, false);

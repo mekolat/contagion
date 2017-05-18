@@ -177,6 +177,11 @@ button,select
     color: #00A200;
 }
 
+.info td.cpu>label, .info td.cpu>label>input
+{
+    cursor: pointer;
+}
+
 @keyframes blink {
     50%
     {
