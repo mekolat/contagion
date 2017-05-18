@@ -677,8 +677,13 @@ nodes.get("perma").addEventListener("click", e => {
     nodes.get("status").innerText = success ? "copied to clipboard" : before;
 }, false);
 
-nodes.get("cpu").addEventListener("click", e => {
+nodes.get("cpu").addEventListener("change", e => {
     cpu.enabled = (<HTMLInputElement>e.target).checked;
+    if (cpu.enabled) {
+        localStorage.setItem("CPU", JSON.stringify([cpu.enabled]));
+    } else {
+        localStorage.removeItem("CPU");
+    }
 });
 
 nodes.get("save").addEventListener("change", save_click, false);
@@ -738,6 +743,12 @@ if ("savestate" in localStorage)
         savestates.length = 0; // forcefully empty it
         localStorage.removeItem("savestate");
     }
+}
+
+if ("CPU" in localStorage) {
+    let state: boolean = JSON.parse(localStorage.getItem("CPU"))[0];
+    cpu.enabled = state;
+    (<HTMLInputElement>nodes.get("cpu")).checked = state;
 }
 
 if ("serviceWorker" in navigator) {
