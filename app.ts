@@ -687,6 +687,18 @@ nodes.get("perma").addEventListener("click", e => {
     self.getSelection().removeAllRanges(); // unselect
 
     nodes.get("status").innerText = success ? "copied to clipboard" : before;
+
+    if ("share" in navigator) {
+        (<any>navigator).share({
+            title: document.title,
+            text: "Contagion board editor",
+            url: self.location.href
+        }).then(() => {
+            nodes.get("status").innerText = "successful share";
+        }).catch((error: any) => {
+            console.error(error);
+        });
+    }
 }, false);
 
 nodes.get("cpu").addEventListener("change", e => {
