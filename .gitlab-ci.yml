@@ -65,6 +65,7 @@ pages:
     - mv manifest.json public/
     - mv browserconfig.xml public/
     - mv icons public/
+    - mv robots.txt public/
     # list public files recursively
     - find public -name \*.\* -print
   artifacts:
