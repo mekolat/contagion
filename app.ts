@@ -380,7 +380,7 @@ const save_click = (slot: number|Event) => {
     compressed.unshift(2); // formatting version
 
     localStorage.setItem("savestate", JSON.stringify(compressed));
-    nodes.get("status").innerText = "saved to slot " + slot;
+    nodes.get("status").textContent = "saved to slot " + slot;
 };
 
 const load_click = (slot: number|Event) => {
@@ -394,7 +394,7 @@ const load_click = (slot: number|Event) => {
 
     if (!((slot - 1) in savestates) || savestates[slot - 1] === null)
     {
-        nodes.get("status").innerText = "slot " + slot + " is empty";
+        nodes.get("status").textContent = "slot " + slot + " is empty";
         return;
     }
 
@@ -408,7 +408,7 @@ const load_click = (slot: number|Event) => {
     grid.apply();
     current_player = +savestates[slot - 1].player;
 
-    nodes.get("status").innerText = "loaded slot " + slot;
+    nodes.get("status").textContent = "loaded slot " + slot;
 };
 
 const undo_history: Array<ArrayLike<TileValue>> = new Proxy(_move_history[0], {
@@ -434,9 +434,9 @@ Reflect.defineProperty(self, "current_player", {
     set: (v: Player) => {
         grid.node.classList.remove("p" + _current_player);
         grid.node.classList.add("p" + v);
-        nodes.get("player").innerText = "(none)";
-        nodes.get("blue").innerText = String(grid.blue_tiles);
-        nodes.get("red").innerText = String(grid.red_tiles);
+        nodes.get("player").textContent = "(none)";
+        nodes.get("blue").textContent = String(grid.blue_tiles);
+        nodes.get("red").textContent = String(grid.red_tiles);
 
         history.replaceState({}, document.title, "#" + grid.tiles.map(t => t.value).join("") + v);
         (<HTMLAnchorElement>nodes.get("perma")).href = document.location.href;
@@ -448,16 +448,16 @@ Reflect.defineProperty(self, "current_player", {
             nodes.get("layout").classList.add("endgame");
 
             if (grid.red_tiles > grid.blue_tiles)
-                nodes.get("status").innerText = "red wins";
+                nodes.get("status").textContent = "red wins";
             else if (grid.blue_tiles > grid.red_tiles)
-                nodes.get("status").innerText = "blue wins";
+                nodes.get("status").textContent = "blue wins";
             else
-                nodes.get("status").innerText = "draw";
+                nodes.get("status").textContent = "draw";
         }
         else
         {
-            nodes.get("status").innerText = "game in progress";
-            nodes.get("player").innerText = v ? "blue" : "red";
+            nodes.get("status").textContent = "game in progress";
+            nodes.get("player").textContent = v ? "blue" : "red";
             (<HTMLButtonElement>nodes.get("switch")).disabled = false;
             nodes.get("layout").classList.remove("endgame");
         }
@@ -668,13 +668,13 @@ self.addEventListener("hashchange", e => {
 nodes.get("perma").addEventListener("click", e => {
     let success = false,
         range = document.createRange(),
-        before = nodes.get("status").innerText;
+        before = nodes.get("status").textContent;
 
     e.preventDefault();
     e.stopPropagation();
 
     self.getSelection().removeAllRanges(); // remove any leftovers
-    nodes.get("status").innerText = document.location.href; // change status to the url
+    nodes.get("status").textContent = document.location.href; // change status to the url
 
     try {
         range.selectNode(nodes.get("status")); // add status to the range
@@ -686,7 +686,7 @@ nodes.get("perma").addEventListener("click", e => {
 
     self.getSelection().removeAllRanges(); // unselect
 
-    nodes.get("status").innerText = success ? "copied to clipboard" : before;
+    nodes.get("status").textContent = success ? "copied to clipboard" : before;
 
     if ("share" in navigator) {
         (<any>navigator).share({
@@ -694,7 +694,7 @@ nodes.get("perma").addEventListener("click", e => {
             text: "Contagion board editor",
             url: self.location.href
         }).then(() => {
-            nodes.get("status").innerText = "successful share";
+            nodes.get("status").textContent = "successful share";
         }).catch((error: any) => {
             console.error(error);
         });
@@ -737,7 +737,7 @@ document.addEventListener("keyup", e => {
 
 layouts.forEach(layout => {
     let l = document.createElement("option");
-    l.innerText = layout[0];
+    l.textContent = layout[0];
     nodes.get("pick").appendChild(l);
 });
 
@@ -780,7 +780,7 @@ if ("serviceWorker" in navigator) {
         .register("service-worker.js")
         .then(() => {
             console.log("Service Worker Registered");
-            nodes.get("caching").innerText = "Available offline";
+            nodes.get("caching").textContent = "Available offline";
             nodes.get("caching").className = "offline";
         })
         .catch(() => console.warn("Service Worker Unavailable"));
