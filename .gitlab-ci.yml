@@ -62,7 +62,7 @@ pages:
     - mv *.map public/
     - mv LICENSE public/
     - mv *.css public/
-    - mv manifest.json public/
+    - mv app.webmanifest public/
     - mv browserconfig.xml public/
     - mv icons public/
     - mv robots.txt public/

@@ -22,7 +22,7 @@ const ESSENTIAL_FILES: [string] = [
 ];
 
 const MISC_FILES: [string] = [
-    "manifest.json",
+    "app.webmanifest",
     "license.html",
     "LICENSE",
     "icons/base.svg",
