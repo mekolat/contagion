@@ -18,7 +18,7 @@ pages:
     # install stuff
     - apt-get -qq update
     - apt-get install -qq -y imagemagick build-essential git zip unzip
-    - npm install -g typescript
+    - npm install -g typescript tslint
     # update hardcoded git tags
     - sed -i "s/{{git-rev}}/$(git describe --tags --always)/" service-worker.ts
     - sed -i "s/{{git-rev}}/$(git describe --tags --always)/g" index.html
@@ -31,6 +31,8 @@ pages:
     - popd
     # set up the environment
     - mkdir -p public
+    # check the syntax
+    - tslint --force -c tslint.json **.ts
     # build the scripts
     - tsc
     # convert our base SVG into many PNG files
@@ -67,7 +69,7 @@ pages:
     - mv icons public/
     - mv robots.txt public/
     # list public files recursively
-    - find public -name \*.\* -print
+    - ls public/**
   artifacts:
     paths:
       - public

@@ -1,0 +1,20 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "no-console": ["info"],
+        "object-literal-sort-keys": false,
+        "no-consecutive-blank-lines": false,
+        "variable-name": [true, "ban-keywords", "check-format", "allow-snake-case", "allow-leading-underscore"],
+        "no-any": true,
+        "interface-name": [true, "never-prefix"],
+        "object-literal-key-quotes": [true, "consistent-as-needed"],
+        "no-non-null-assertion": true,
+        "no-var-requires": true,
+        "only-arrow-functions": true
+    },
+    "rulesDirectory": []
+}
