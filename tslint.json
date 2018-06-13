@@ -14,7 +14,10 @@
         "object-literal-key-quotes": [true, "consistent-as-needed"],
         "no-non-null-assertion": true,
         "no-var-requires": true,
-        "only-arrow-functions": true
+        "only-arrow-functions": true,
+        "triple-equals": true,
+        "prefer-const": true,
+        "file-header": [true, "@license"]
     },
     "rulesDirectory": []
 }

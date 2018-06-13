@@ -21,13 +21,13 @@ const SAVESTATE_VERSION: number = 2;
 
 class Grid {
 
-    public size: number;
-    public num_tiles: number;
-    public node: HTMLElement;
+    public readonly size: number;
+    public readonly num_tiles: number;
+    public readonly node: HTMLElement;
+    public readonly tiles: Tile[];
     public free_tiles: number;
     public red_tiles: number;
     public blue_tiles: number;
-    public tiles: Tile[];
     public _tbl: HTMLTableElement;
 
     private _active: Tile;
@@ -90,12 +90,12 @@ class Grid {
 
 class Tile {
 
-    public id: number;
-    public parent: Grid;
-    public rpos: number;
-    public cpos: number;
-    public node: HTMLTableCellElement;
-    public neighbors: [Set<Tile>, Set<Tile>];
+    public readonly id: number;
+    public readonly parent: Grid;
+    public readonly rpos: number;
+    public readonly cpos: number;
+    public readonly node: HTMLTableCellElement;
+    public readonly neighbors: [Set<Tile>, Set<Tile>];
 
     private _color: TileColor;
     private _value: TileValue;
